@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>ADIO Sovereign Dashboard</title>
+<title>ADIO - Intelligence Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -447,7 +447,7 @@ html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-display);fon
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         </button>
         <div>
-          <div class="header-eyebrow" id="hdr-section">NextGen Group - Investment Intelligence</div>
+          <div class="header-eyebrow" id="hdr-section">ADIO - Intelligence Dashboard</div>
           <div class="header-title" id="hdr-title">Portfolio</div>
         </div>
       </div>
@@ -611,7 +611,7 @@ html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-display);fon
       </div>
     </main>
 
-    <footer class="site-footer">ADIO Sovereign Dashboard · Abu Dhabi Investment Office · Data processed locally</footer>
+    <footer class="site-footer">ADIO - Intelligence Dashboard · Abu Dhabi Investment Office · Data processed locally</footer>
   </div>
 </div>
 
@@ -1444,7 +1444,7 @@ function go(id,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
   const m=document.getElementById('mobileNav');if(m)m.value=id;
-  const meta=PAGE_META[id];if(meta){document.getElementById('hdr-section').textContent='NextGen Group - '+meta.section;document.getElementById('hdr-title').textContent=meta.title;}
+  const meta=PAGE_META[id];if(meta){document.getElementById('hdr-section').textContent='ADIO - Intelligence Dashboard';document.getElementById('hdr-title').textContent=meta.title;}
   currentPage=id;
   if(copilotOpen&&['portfolio','pipeline','performance','macro'].includes(id))setCopilotTopic(id);
 }
