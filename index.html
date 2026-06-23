@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ADIO Sovereign Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+:root{
+  --gold:#a57735;--gold-light:#e8ddcd;--navy:#232c35;--dark-bg:#121c26;
+  --dark:#1e1e1e;--gray:#888888;--surface:#eef1f5;--gray-light:#f2f2f2;
+  --canvas:var(--gray-light);--text:var(--dark);--muted:var(--gray);--mid:var(--gray);
+  --accent:var(--gold);--shadow-card:0 1px 2px rgba(0,0,0,.03),0 4px 20px rgba(35,44,53,.06);
+  --shadow-float:0 2px 8px rgba(0,0,0,.04),0 12px 36px rgba(35,44,53,.08);
+  --sidebar-w:260px;--sidebar-collapsed:68px;
+  --font-display:'Darker Grotesque',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-display);font-size:16px;font-weight:500;color:var(--text);background:var(--canvas);-webkit-font-smoothing:antialiased}
+
+.app-shell{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar-w);background:var(--dark-bg);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;flex-shrink:0;transition:width .35s cubic-bezier(.25,.1,.25,1);overflow:hidden}
+.sidebar.collapsed{width:var(--sidebar-collapsed)}
+.sidebar-brand{padding:32px 20px 24px;border-bottom:1px solid rgba(255,255,255,.05);text-align:center}
+.sidebar-brand img{height:52px;width:auto;max-width:220px}
+.sidebar.collapsed .sidebar-brand{padding:24px 10px}
+.sidebar.collapsed .sidebar-brand img,.sidebar.collapsed .sidebar-sub,.sidebar.collapsed .nav-label,.sidebar.collapsed .live-pill span{display:none}
+.sidebar-sub{font-size:13px;color:#a57735;margin-top:14px;font-weight:700;letter-spacing:.02em}
+.sidebar-nav{flex:1;padding:16px 12px;overflow-y:auto}
+.nav-btn{width:100%;display:flex;align-items:center;gap:12px;padding:10px 16px;margin-bottom:4px;border:none;border-radius:999px;background:transparent;color:var(--gray);font-size:16px;font-weight:500;cursor:pointer;transition:all .3s;text-align:left;font-family:inherit}
+.nav-btn svg{flex-shrink:0;width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.5}
+.sidebar.collapsed .nav-btn{justify-content:center;padding:10px}
+.nav-btn:hover{color:#fff;background:rgba(255,255,255,.06)}
+.nav-btn.active{color:var(--dark);background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.nav-btn.active svg{color:var(--dark)}
+.sidebar-foot{padding:12px;margin-top:auto}
+.live-pill{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;border-radius:999px;background:rgba(255,255,255,.04)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.live-pill span{font-size:13px;color:var(--gray);font-weight:500}
+
+.main-wrap{flex:1;min-width:0;display:flex;flex-direction:column}
+.global-header{position:sticky;top:0;z-index:50;height:56px;padding:0 24px 0 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;background:rgba(255,255,255,.88);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.05)}
+.header-left{display:flex;align-items:center;gap:12px;min-width:0}
+.sidebar-toggle{width:36px;height:36px;border:none;border-radius:50%;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray)}
+.sidebar-toggle:hover{background:var(--surface)}
+.header-eyebrow{font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);line-height:1}
+.header-title{font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.2;margin-top:2px}
+.header-vitals{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.hv{text-align:center;min-width:88px}
+.hv-k{font-size:13px;color:var(--gray);letter-spacing:.04em;text-transform:uppercase;font-weight:500}
+.hv-v{font-size:16px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.hv-v.accent{color:var(--gold)}
+
+.main-content{flex:1;max-width:1360px;width:100%;margin:0 auto;padding:24px 24px 40px}
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,.06)}
+.page-header .section-eyebrow{font-size:16px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.page-header h1{font-size:clamp(2.25rem,4vw,3rem);font-weight:800;letter-spacing:-.02em;margin:0;line-height:1.1}
+.page-header .meta{font-size:18px;color:var(--gray);margin-top:10px;font-weight:500;line-height:1.4}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.pastel-card{border-radius:14px;padding:24px;box-shadow:var(--shadow-card);transition:transform .35s,box-shadow .35s}
+.pastel-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-float)}
+.kpi-light{background:#fff;border:1px solid rgba(0,0,0,.06)}
+.kpi-dark{background:var(--navy);border:none;border-left:4px solid var(--gold)}
+.pastel-icon{display:none}
+.pastel-value{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-bottom:8px;font-variant-numeric:tabular-nums}
+.kpi-light .pastel-value{color:var(--dark)}
+.kpi-dark .pastel-value{color:#fff}
+.pastel-label{font-size:13px;font-weight:500;color:var(--gray);text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px}
+.kpi-dark .pastel-label{color:rgba(255,255,255,.55)}
+.pastel-change{font-size:13px;font-weight:500;margin-top:8px;color:var(--gold)}
+
+.grid-2{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px}
+.grid-2-eq{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:16px}
+.grid-ctx{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+
+.apple-card{background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,.05);box-shadow:var(--shadow-card);transition:box-shadow .35s}
+.apple-card:hover{box-shadow:var(--shadow-float)}
+.widget-card{padding:24px 28px;height:100%}
+.widget-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}
+.widget-title{font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.widget-sub{font-size:16px;font-weight:500;color:var(--gray);margin-top:6px;line-height:1.5}
+.widget-badge{font-size:13px;font-weight:500;color:var(--gray);padding:4px 10px;border-radius:999px;background:var(--surface);text-transform:uppercase;letter-spacing:.04em}
+.chart-frame{position:relative;height:260px}
+.chart-frame.sm{height:220px}
+
+.allocation-chart-card{
+  position:relative;overflow:hidden;
+  background:#fff;
+  border:1px solid rgba(0,0,0,.06);
+  box-shadow:var(--shadow-card);
+  animation:allocationCardEnter .7s cubic-bezier(.22,1,.36,1) both;
+}
+.allocation-chart-card .widget-head,.allocation-chart-card .chart-frame{position:relative;z-index:1}
+@keyframes allocationCardEnter{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media (prefers-reduced-motion:reduce){
+  .allocation-chart-card{animation:none}
+}
+
+.bar-row{margin-bottom:14px}
+.bar-top{display:flex;justify-content:space-between;margin-bottom:6px;font-size:13px}
+.bar-lbl{color:var(--gray);font-weight:500;text-transform:uppercase;letter-spacing:.03em}
+.bar-val{font-weight:700;color:var(--text)}
+.bar-track{height:4px;background:var(--surface);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;background:var(--gold);transition:width 1s ease}
+
+.irr-visual-card{position:relative;overflow:hidden}
+.irr-visual{position:relative;padding:4px 0 8px;min-height:280px}
+.irr-visual-inner{position:relative;display:flex;flex-direction:column;gap:14px}
+.irr-benchmark{position:absolute;top:0;bottom:8px;width:1px;background:repeating-linear-gradient(180deg,rgba(165,119,53,.55) 0 4px,transparent 4px 8px);z-index:2;pointer-events:none;transform:translateX(-50%)}
+.irr-benchmark span{position:absolute;top:-2px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);white-space:nowrap;background:#fff;padding:2px 6px;border-radius:4px}
+.irr-item{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:12px;opacity:0;animation:irrItemIn .55s cubic-bezier(.22,1,.36,1) forwards;animation-delay:var(--delay,0s);cursor:pointer;border-radius:10px;margin:0 -8px;padding:4px 8px;transition:background .2s}
+.irr-item:hover{background:rgba(26,62,110,.04)}
+.irr-rank{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--gray);background:var(--surface);border:1px solid rgba(0,0,0,.06);flex-shrink:0}
+.irr-item.is-leader .irr-rank{color:#fff;background:linear-gradient(135deg,#1A3E6E,#232c35);border-color:transparent;box-shadow:0 4px 12px rgba(26,62,110,.25)}
+.irr-mid{min-width:0}
+.irr-label{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--gray);margin-bottom:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.irr-item.is-leader .irr-label{color:var(--navy)}
+.irr-track{position:relative;height:10px;background:var(--surface);border-radius:999px;overflow:visible}
+.irr-fill{position:absolute;left:0;top:0;height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,#1A3E6E 0%,#2d5080 100%);animation:irrBarGrow .9s cubic-bezier(.22,1,.36,1) forwards;animation-delay:calc(var(--delay,0s) + .1s)}
+.irr-item.is-leader .irr-fill{background:linear-gradient(90deg,#1A3E6E 0%,#a57735 100%)}
+.irr-knob{position:absolute;top:50%;left:var(--w,0%);width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid #1A3E6E;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(26,62,110,.2);opacity:0;animation:irrKnobIn .5s cubic-bezier(.22,1,.36,1) forwards;animation-delay:calc(var(--delay,0s) + .55s)}
+.irr-item.is-leader .irr-knob{border-color:#a57735}
+.irr-val{font-size:15px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;min-width:52px;text-align:right}
+.irr-item.is-leader .irr-val{color:var(--gold)}
+@keyframes irrItemIn{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes irrBarGrow{from{width:0}to{width:var(--w)}}
+@keyframes irrKnobIn{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@media (prefers-reduced-motion:reduce){.irr-item,.irr-fill,.irr-knob{animation:none;opacity:1}.irr-fill{width:var(--w)}.irr-knob{opacity:1}}
+
+.pipe-flow-card{overflow:hidden}
+.pipe-flow-visual{display:flex;flex-direction:column;gap:20px;min-height:300px}
+.pipe-flow-head{display:flex;flex-wrap:wrap;gap:10px 18px;justify-content:center}
+.pipe-leg-item{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;letter-spacing:.02em;text-transform:capitalize;color:var(--gray)}
+.pipe-leg-item i{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.pipe-flow-grid{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;height:260px;padding:0 4px}
+.pipe-month{flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0}
+.pipe-col-wrap{width:100%;max-width:52px;height:220px;display:flex;align-items:flex-end;justify-content:center;cursor:pointer}
+.pipe-stack{width:100%;height:calc(220px * var(--scale,1));display:flex;flex-direction:column-reverse;gap:3px;border-radius:10px 10px 6px 6px;overflow:hidden}
+.pipe-seg{width:100%;height:0;background:var(--c);border-radius:4px;cursor:pointer;transition:filter .2s,transform .2s;animation:pipeSegGrow .85s cubic-bezier(.22,1,.36,1) forwards;animation-delay:var(--delay,0s)}
+.pipe-seg:hover{filter:brightness(1.15);transform:scaleX(1.04)}
+.pipe-month.is-peak .pipe-stack{box-shadow:0 0 0 2px rgba(196,146,42,.45),0 8px 24px rgba(26,62,110,.15)}
+.pipe-month.is-peak .pipe-month-val{color:var(--gold)}
+.pipe-month-meta{text-align:center}
+.pipe-month-name{display:block;font-size:14px;font-weight:600;letter-spacing:.02em;text-transform:capitalize;color:var(--gray)}
+.pipe-month-val{display:block;font-size:15px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums;margin-top:2px}
+@keyframes pipeSegGrow{from{height:0;opacity:.6}to{height:var(--h);opacity:1}}
+@media (prefers-reduced-motion:reduce){.pipe-seg{animation:none;height:var(--h);opacity:1}.pipe-seg:hover{transform:none}}
+
+.dash-tooltip{position:fixed;z-index:9999;pointer-events:none;padding:10px 14px;border-radius:10px;background:#232c35;color:rgba(255,255,255,.92);font-size:13px;font-weight:500;line-height:1.55;box-shadow:0 10px 32px rgba(18,28,38,.3);opacity:0;transform:translateY(6px);transition:opacity .15s,transform .15s;max-width:260px;white-space:pre-line;font-family:var(--font-display)}
+.dash-tooltip.visible{opacity:1;transform:translateY(0)}
+.dash-tooltip .tip-title{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#a57735;margin-bottom:4px}
+.bar-row.has-tip{cursor:pointer;border-radius:8px;padding:4px 6px;margin:0 -6px 10px;transition:background .2s}
+.bar-row.has-tip:hover{background:rgba(26,62,110,.04)}
+
+.conv-funnel-card{overflow:hidden}
+.conv-funnel-visual{display:flex;flex-direction:column;min-height:0;padding:0}
+.conv-funnel-stages{display:flex;flex-direction:column;width:100%;border-top:1px solid rgba(0,0,0,.06)}
+.conv-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid rgba(0,0,0,.06);cursor:pointer;transition:background .2s}
+.conv-row:hover{background:rgba(26,62,110,.03);margin:0 -8px;padding-left:8px;padding-right:8px;border-radius:8px}
+.conv-row-main{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+.conv-indicator{width:4px;height:32px;border-radius:4px;flex-shrink:0;opacity:.9}
+.conv-label{font-size:14px;font-weight:600;text-transform:capitalize;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv-stats{display:flex;align-items:baseline;gap:8px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.conv-count{font-size:15px;font-weight:700;color:var(--text)}
+.conv-pct{font-size:13px;font-weight:500;color:var(--gray)}
+.conv-summary{margin-top:20px;padding-top:20px;border-top:1px solid rgba(0,0,0,.06);text-align:center}
+.conv-summary-val{font-size:32px;font-weight:800;color:var(--navy);letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.conv-summary-lbl{font-size:13px;font-weight:600;color:var(--gray);margin-top:8px;text-transform:capitalize}
+.conv-summary-note{font-size:13px;font-weight:500;color:var(--gold);margin-top:4px;line-height:1.4}
+
+.perf-nav-card,.perf-alpha-card{overflow:hidden}
+.perf-chart-wrap{width:100%;height:220px;position:relative}
+.perf-chart-wrap svg{width:100%;height:100%;display:block;overflow:visible}
+.perf-chart-labels{display:flex;justify-content:space-between;gap:4px;margin-top:8px;padding:0 2px}
+.perf-chart-lbl{font-size:11px;font-weight:600;color:var(--gray);text-align:center;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.perf-nav-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06)}
+.perf-nav-start,.perf-nav-end{text-align:left}
+.perf-nav-end{text-align:right}
+.perf-nav-k{font-size:11px;font-weight:600;color:var(--gray);text-transform:capitalize;margin-bottom:4px}
+.perf-nav-v{font-size:18px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums}
+.perf-nav-growth{font-size:14px;font-weight:700;color:#1F6B54;padding:6px 12px;border-radius:999px;background:rgba(31,107,84,.1)}
+.perf-alpha-stats{display:flex;gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06)}
+.perf-stat{flex:1;text-align:center;padding:10px 8px;border-radius:10px;background:var(--surface)}
+.perf-stat-k{font-size:11px;font-weight:600;color:var(--gray);text-transform:capitalize;margin-bottom:4px}
+.perf-stat-v{font-size:16px;font-weight:800;color:var(--navy);font-variant-numeric:tabular-nums}
+.perf-stat-v.accent{color:var(--gold)}
+.perf-legend{display:flex;gap:16px;justify-content:center;margin-top:10px}
+.perf-leg{font-size:11px;font-weight:600;color:var(--gray);display:inline-flex;align-items:center;gap:6px;text-transform:capitalize}
+.perf-leg i{width:16px;height:3px;border-radius:2px;display:inline-block}
+.perf-leg.bm i{background:repeating-linear-gradient(90deg,#94a3b8 0 4px,transparent 4px 7px);height:2px}
+.perf-dot{cursor:pointer;transition:r .2s}
+.perf-dot:hover{r:6}
+
+.metric-strip{display:flex;justify-content:space-around;background:var(--surface);border-radius:12px;padding:14px 0;margin-top:16px}
+.metric-strip div{text-align:center}
+.ms-k{font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--gray);margin-bottom:4px}
+.ms-v{font-size:22px;font-weight:700;color:var(--text)}
+
+.insight-panel{position:relative;overflow:hidden;border-radius:14px;padding:32px 36px;color:#fff;margin-bottom:16px;background:linear-gradient(145deg,var(--dark-bg) 0%,var(--navy) 55%,var(--dark-bg) 100%);box-shadow:0 24px 80px rgba(18,28,38,.22)}
+.insight-panel::after{content:'';position:absolute;top:0;right:0;width:240px;height:240px;border-radius:50%;background:rgba(165,119,53,.18);filter:blur(60px);pointer-events:none}
+.insight-eyebrow{font-size:13px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:8px;position:relative}
+.insight-title{font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:24px;position:relative}
+.insight-list{list-style:none;margin:0;padding:0;position:relative}
+.insight-list li{display:flex;gap:14px;margin-bottom:16px;font-size:16px;font-weight:400;color:rgba(255,255,255,.78);line-height:1.6}
+.insight-badge{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+
+.copilot-card{padding:24px 28px;margin-top:16px}
+.copilot-open-link{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:12px 18px;border-radius:10px;background:var(--navy);color:#fff;font-size:14px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:background .2s}
+.copilot-open-link:hover{background:var(--dark-bg)}
+
+/* ── Unified ADIO Copilot Chat ── */
+.copilot-workspace{display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:560px;background:#fff;border-radius:14px;border:1px solid rgba(0,0,0,.06);box-shadow:var(--shadow-card);overflow:hidden}
+.copilot-workspace-header{padding:16px 20px;background:linear-gradient(135deg,var(--dark-bg),var(--navy));color:#fff;flex-shrink:0}
+.copilot-workspace-title{font-size:22px;font-weight:700;margin-bottom:4px}
+.copilot-workspace-sub{font-size:14px;font-weight:500;color:rgba(255,255,255,.55)}
+.copilot-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.copilot-topics{display:flex;flex-wrap:wrap;gap:6px;flex:1}
+.copilot-topic-btn{padding:7px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:rgba(255,255,255,.75);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+.copilot-topic-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.copilot-topic-btn.active{background:#fff;color:var(--navy);border-color:#fff}
+.copilot-mode-toggle{display:flex;background:rgba(255,255,255,.08);border-radius:10px;padding:3px;gap:3px;flex-shrink:0}
+.copilot-mode-btn{flex:1;padding:8px 14px;border:none;border-radius:8px;background:transparent;color:rgba(255,255,255,.6);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;white-space:nowrap}
+.copilot-mode-btn.active{background:#fff;color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.copilot-workspace-body{flex:1;overflow-y:auto;padding:20px;background:var(--gray-light);display:flex;flex-direction:column;gap:14px}
+.copilot-welcome{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.copilot-welcome h3{font-size:18px;font-weight:700;margin:0 0 8px;color:var(--dark)}
+.copilot-welcome p{font-size:15px;font-weight:500;color:var(--gray);margin:0 0 16px;line-height:1.5}
+.copilot-quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.copilot-quick-card{padding:14px;border-radius:12px;border:1px solid rgba(0,0,0,.06);background:var(--surface);cursor:pointer;text-align:left;font-family:inherit;transition:all .2s}
+.copilot-quick-card:hover{border-color:var(--gold);background:var(--gold-light)}
+.copilot-quick-card strong{display:block;font-size:14px;font-weight:700;color:var(--dark);margin-bottom:4px}
+.copilot-quick-card span{font-size:13px;font-weight:500;color:var(--gray);line-height:1.4}
+.chat-row{display:flex;gap:10px;max-width:92%;animation:chatIn .3s ease-out}
+.chat-row.user{align-self:flex-end;flex-direction:row-reverse;margin-left:auto}
+.chat-row.bot{align-self:flex-start}
+.chat-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+.chat-avatar.bot{background:var(--gold);color:#fff}
+.chat-avatar.user{background:var(--navy);color:#fff}
+.chat-bubble{padding:12px 16px;border-radius:16px;font-size:15px;font-weight:500;line-height:1.6}
+.chat-bubble.user{background:var(--navy);color:#fff;border-radius:16px 16px 4px 16px}
+.chat-bubble.bot{background:#fff;color:var(--text);border:1px solid rgba(0,0,0,.06);box-shadow:0 1px 4px rgba(0,0,0,.04);border-radius:16px 16px 16px 4px}
+.chat-bubble.bot.analyse{border-left:3px solid var(--gold)}
+.chat-bubble .msg-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.chat-bubble .msg-time{font-size:11px;color:var(--gray);margin-top:8px}
+.chat-bubble.user .msg-time{color:rgba(255,255,255,.5)}
+.copilot-prompts{padding:12px 16px;background:#fff;border-top:1px solid rgba(0,0,0,.05);flex-shrink:0}
+.copilot-prompts-label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--gray);margin-bottom:8px}
+.copilot-chips{display:flex;flex-wrap:wrap;gap:6px}
+.copilot-chip{padding:7px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.08);background:var(--surface);font-size:13px;font-weight:500;color:var(--gray);cursor:pointer;font-family:inherit;transition:all .15s}
+.copilot-chip:hover{border-color:var(--gold);color:var(--text);background:var(--gold-light)}
+.copilot-input-area{padding:14px 16px 18px;background:#fff;border-top:1px solid rgba(0,0,0,.06);flex-shrink:0}
+.copilot-input-wrap{display:flex;gap:8px;align-items:flex-end}
+.copilot-input{flex:1;padding:12px 14px;border:1px solid rgba(0,0,0,.1);border-radius:12px;font-size:16px;font-weight:500;font-family:inherit;resize:none;max-height:120px;min-height:48px;line-height:1.4;outline:none;background:var(--surface)}
+.copilot-input:focus{border-color:var(--gold);background:#fff}
+.copilot-send{width:48px;height:48px;border:none;border-radius:12px;background:var(--gold);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}
+.copilot-send:disabled{opacity:.4;cursor:default}
+.copilot-send:hover:not(:disabled){background:#8a652d}
+.copilot-input-hint{font-size:13px;font-weight:500;color:var(--gray);margin-top:8px;text-align:center}
+.copilot-analyse-bar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.copilot-analyse-btn{padding:8px 14px;border-radius:999px;border:1px solid rgba(0,0,0,.1);background:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--navy)}
+.copilot-analyse-btn:hover{border-color:var(--gold);background:var(--gold-light)}
+.copilot-fab{position:fixed;bottom:max(24px,env(safe-area-inset-bottom,24px));right:24px;z-index:200;display:flex;align-items:center;gap:10px;padding:0 20px 0 16px;height:56px;border-radius:999px;border:none;background:linear-gradient(135deg,var(--dark-bg),var(--navy));color:#fff;cursor:pointer;box-shadow:0 8px 32px rgba(18,28,38,.28);transition:transform .25s,box-shadow .25s;font-family:inherit}
+.copilot-fab:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(18,28,38,.35)}
+.copilot-fab svg{width:22px;height:22px;flex-shrink:0}
+.copilot-fab .fab-label{font-size:15px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.copilot-fab .fab-badge{position:absolute;top:6px;right:10px;width:8px;height:8px;background:var(--gold);border:2px solid var(--navy);border-radius:50%}
+.copilot-overlay{position:fixed;inset:0;background:rgba(18,28,38,.45);z-index:210;opacity:0;pointer-events:none;transition:opacity .3s}
+.copilot-overlay.open{opacity:1;pointer-events:auto}
+.copilot-panel{position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;background:#fff;z-index:220;display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(35,44,53,.14);transform:translateX(100%);transition:transform .35s cubic-bezier(.25,.1,.25,1),width .35s cubic-bezier(.25,.1,.25,1)}
+.copilot-panel.open{transform:translateX(0)}
+.copilot-panel.expanded{width:min(920px,94vw)}
+.copilot-panel-header{padding:18px 20px;background:linear-gradient(135deg,var(--dark-bg),var(--navy));color:#fff;flex-shrink:0}
+.copilot-panel-header-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.copilot-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.copilot-brand-icon{width:36px;height:36px;border-radius:10px;background:rgba(165,119,53,.2);color:#e8ddcd;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;flex-shrink:0}
+.copilot-panel-title{font-size:18px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.copilot-panel-sub{font-size:13px;font-weight:500;color:rgba(255,255,255,.55);margin-top:3px}
+.copilot-header-actions{display:flex;gap:6px;flex-shrink:0}
+.copilot-expand,.copilot-close{width:34px;height:34px;border:none;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.copilot-expand:hover,.copilot-close:hover{background:rgba(255,255,255,.2)}
+.copilot-panel .copilot-messages-host{flex:1;overflow-y:auto;padding:20px 20px 12px;background:var(--gray-light);display:flex;flex-direction:column;gap:12px}
+.copilot-msg-row{display:flex;gap:10px;max-width:100%;animation:chatIn .25s ease-out}
+.copilot-msg-row.user{flex-direction:row-reverse;align-self:flex-end}
+.copilot-msg-row.bot{align-self:flex-start}
+.copilot-msg-av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.copilot-msg-row.bot .copilot-msg-av{background:var(--gold);color:#fff}
+.copilot-msg-row.user .copilot-msg-av{background:var(--navy);color:#fff}
+.copilot-msg-row .chat-bubble{max-width:calc(100% - 38px)}
+.copilot-welcome-simple{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.04);text-align:center}
+.copilot-welcome-simple h3{font-size:17px;font-weight:800;margin:0 0 6px;color:var(--navy)}
+.copilot-welcome-simple p{font-size:13px;font-weight:500;color:var(--gray);margin:0 0 14px;line-height:1.45}
+.copilot-quick-btns{display:flex;flex-direction:column;gap:8px;text-align:left}
+.copilot-quick-btn{padding:13px 14px;border-radius:10px;border:1px solid rgba(0,0,0,.08);background:var(--surface);font-size:14px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;text-align:left;transition:all .15s;line-height:1.35;display:flex;align-items:center;gap:10px}
+.copilot-quick-btn::before{content:'→';color:var(--gold);font-weight:800;flex-shrink:0}
+.copilot-quick-btn:hover{border-color:var(--gold);background:var(--gold-light)}
+.copilot-suggestions{padding:0 16px 10px;background:#fff;border-top:1px solid rgba(0,0,0,.04);flex-shrink:0}
+.copilot-suggestions:empty{display:none}
+.copilot-sug-label{font-size:11px;font-weight:600;color:var(--gray);margin-bottom:8px;text-transform:capitalize}
+.copilot-sug-chips{display:flex;flex-wrap:wrap;gap:6px}
+.copilot-sug-chip{padding:7px 12px;border-radius:999px;border:1px solid rgba(0,0,0,.08);background:var(--surface);font-size:12px;font-weight:600;color:var(--navy);cursor:pointer;font-family:inherit;transition:all .15s;line-height:1.3}
+.copilot-sug-chip:hover{border-color:var(--gold);background:var(--gold-light)}
+.copilot-input-area{padding:12px 16px 16px;background:#fff;border-top:1px solid rgba(0,0,0,.06);flex-shrink:0;box-shadow:0 -4px 20px rgba(0,0,0,.04)}
+.copilot-magic-btn{width:44px;height:44px;border:none;border-radius:12px;background:rgba(165,119,53,.12);color:var(--gold);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:800;transition:all .15s}
+.copilot-magic-btn:hover{background:var(--gold);color:#fff}
+.copilot-clear-btn{padding:6px 10px;border:none;border-radius:8px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.75);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+.copilot-clear-btn:hover{background:rgba(255,255,255,.18);color:#fff}
+.copilot-topics-bar{display:flex;gap:6px;padding:10px 14px;overflow-x:auto;background:#fff;border-bottom:1px solid rgba(0,0,0,.06);flex-shrink:0;-webkit-overflow-scrolling:touch}
+.copilot-topic-pill{padding:7px 13px;border-radius:999px;border:1px solid rgba(0,0,0,.08);background:var(--surface);font-size:12px;font-weight:600;color:var(--gray);cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .15s;flex-shrink:0;text-transform:capitalize}
+.copilot-topic-pill:hover{border-color:var(--gold);color:var(--navy)}
+.copilot-topic-pill.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+@keyframes chatIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.chat-typing{align-self:flex-start;display:flex;gap:4px;padding:12px 16px;background:#fff;border-radius:16px;border:1px solid rgba(0,0,0,.06);margin-left:38px}
+.chat-typing span{width:6px;height:6px;background:var(--gray);border-radius:50%;animation:typingBounce 1.2s infinite}
+.chat-typing span:nth-child(2){animation-delay:.15s}
+.chat-typing span:nth-child(3){animation-delay:.3s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+
+.ask-ta,.ans-box{display:none!important}
+.reset-data-btn{padding:12px 28px;background:var(--navy);border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:inherit}
+
+.drop-zone{background:#fff;border:2px dashed rgba(0,0,0,.1);border-radius:14px;padding:56px 24px;text-align:center;cursor:pointer;margin-bottom:16px;box-shadow:var(--shadow-card);transition:all .2s}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:var(--gold-light)}
+.dz-icon{font-size:40px;margin-bottom:12px;opacity:.25}
+.dz-title{font-size:22px;font-weight:700;margin-bottom:4px}
+.dz-sub{font-size:16px;font-weight:500;color:var(--gray)}
+.thinking{text-align:center;padding:36px;font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;display:none}
+.csv-out{display:none}
+
+.lux-table-wrap{border:1px solid rgba(0,0,0,.05);background:var(--surface);border-radius:14px;overflow:auto;max-height:420px}
+.lux-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;font-weight:500}
+.lux-table th{text-align:left;padding:12px;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;color:var(--gray);background:var(--gray-light);border-bottom:1px solid rgba(0,0,0,.06);position:sticky;top:0}
+.lux-table td{padding:12px;border-bottom:1px solid rgba(0,0,0,.03);color:var(--text)}
+.lux-table tr:hover td{background:#fff}
+
+.site-footer{border-top:1px solid rgba(0,0,0,.05);background:#fff;padding:20px 24px;text-align:center;font-size:13px;font-weight:500;color:var(--gray)}
+
+.mobile-nav{display:none}
+@media(max-width:1023px){
+  .sidebar{display:none}
+  .sidebar-toggle{display:none}
+  .mobile-nav{display:block;position:relative;background:var(--dark-bg);border-bottom:1px solid rgba(255,255,255,.05)}
+  .mobile-nav::after{content:'▾';position:absolute;right:16px;top:50%;transform:translateY(-50%);color:var(--gold);font-size:14px;pointer-events:none}
+  .mobile-nav select{width:100%;padding:14px 36px 14px 16px;background:var(--dark-bg);color:#fff;border:none;font-size:16px;font-family:inherit;font-weight:500;-webkit-appearance:none;appearance:none}
+  .global-header{height:auto;flex-direction:column;align-items:stretch;padding:0;padding-top:env(safe-area-inset-top,0)}
+  .header-left{padding:12px 16px;min-width:0}
+  .header-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 32px)}
+  .header-eyebrow{display:none}
+  .header-vitals{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:0;width:100%;flex-wrap:nowrap;justify-content:flex-start;border-top:1px solid rgba(0,0,0,.06);padding:0 4px;scrollbar-width:none}
+  .header-vitals::-webkit-scrollbar{display:none}
+  .header-vitals .hv{flex:0 0 auto;min-width:88px;padding:10px 12px;border-right:1px solid rgba(0,0,0,.05);text-align:center}
+  .header-vitals .hv:last-child{border-right:none}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .grid-2,.grid-2-eq,.grid-3,.grid-ctx{grid-template-columns:1fr}
+  .main-content{padding:16px 16px 88px}
+  .page-header{margin-bottom:16px;padding-bottom:12px}
+  .page-header h1{font-size:clamp(1.6rem,7vw,2.25rem)}
+  .page-header .meta{font-size:15px}
+  .widget-card{padding:16px}
+  .insight-panel{padding:20px 16px}
+  .widget-title{font-size:18px}
+  .widget-sub{font-size:14px}
+  .pipe-flow-grid{gap:4px;padding:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .pipe-month{min-width:44px}
+  .pipe-col-wrap{max-width:44px}
+  .pipe-month-name{font-size:11px}
+  .pipe-month-val{font-size:12px}
+  .irr-benchmark span{font-size:9px;padding:1px 4px}
+  .perf-chart-lbl{font-size:10px}
+  .perf-chart-lbl:nth-child(even){visibility:hidden}
+  .perf-alpha-stats{gap:6px}
+  .perf-stat{padding:8px 4px}
+  .perf-stat-k{font-size:10px}
+  .perf-stat-v{font-size:14px}
+  .metric-strip{flex-wrap:wrap;gap:12px;padding:14px 8px}
+  .metric-strip div{flex:1 1 40%;min-width:120px}
+  .copilot-panel{width:100vw;padding-bottom:env(safe-area-inset-bottom,0)}
+  .copilot-panel .copilot-messages-host{-webkit-overflow-scrolling:touch}
+  .copilot-fab{bottom:max(16px,env(safe-area-inset-bottom,16px));right:16px;padding:0 14px;height:52px}
+  .copilot-fab .fab-label{font-size:14px}
+  .copilot-topic-pill{padding:11px 16px;font-size:13px}
+  .copilot-sug-chip{padding:11px 14px;font-size:12px}
+  .copilot-close,.copilot-expand{width:44px;height:44px}
+  .copilot-magic-btn,.copilot-send{width:48px;height:48px}
+  .conv-summary-val{font-size:26px}
+  .drop-zone{padding:40px 16px}
+  .site-footer{padding:16px;font-size:12px}
+  .lux-table-wrap{max-height:320px}
+}
+@media(max-width:400px){
+  .kpi-grid{grid-template-columns:1fr}
+  .pastel-value{font-size:20px}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <img src="logo-new-light535748fa25b44e1e838390e8f149d21d.svg" alt="ADIO">
+      <div class="sidebar-sub">Abu Dhabi Investment Office</div>
+    </div>
+    <nav class="sidebar-nav" id="sidebarNav">
+      <button class="nav-btn active" data-page="portfolio" onclick="go('portfolio',this)">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span class="nav-label">Portfolio</span>
+      </button>
+      <button class="nav-btn" data-page="pipeline" onclick="go('pipeline',this)">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span class="nav-label">Deal Pipeline</span>
+      </button>
+      <button class="nav-btn" data-page="performance" onclick="go('performance',this)">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span class="nav-label">Performance</span>
+      </button>
+      <button class="nav-btn" data-page="macro" onclick="go('macro',this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span class="nav-label">Macro</span>
+      </button>
+      <button class="nav-btn" data-page="insights" onclick="go('insights',this)">
+        <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.5-1.5 4.5-3 6l-1 5H9l-1-5c-1.5-1.5-3-3.5-3-6a7 7 0 0 1 7-7z"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+        <span class="nav-label">AI Insights</span>
+      </button>
+      <button class="nav-btn" data-page="upload" id="up-tab" onclick="go('upload',this)">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="nav-label">Upload Data</span>
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="live-pill"><span class="live-dot"></span><span id="liveLabel">LIVE — Q4 2024</span></div>
+    </div>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="global-header">
+      <div class="header-left">
+        <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div>
+          <div class="header-eyebrow" id="hdr-section">NextGen Group - Investment Intelligence</div>
+          <div class="header-title" id="hdr-title">Portfolio</div>
+        </div>
+      </div>
+      <div class="header-vitals" id="topVitals">
+        <div class="hv"><div class="hv-k">Total NAV</div><div class="hv-v accent" id="v-nav">AED 18.9B</div></div>
+        <div class="hv"><div class="hv-k">Portfolio IRR</div><div class="hv-v" id="v-irr">18.9%</div></div>
+        <div class="hv"><div class="hv-k">Alpha vs Benchmark</div><div class="hv-v accent" id="v-alpha">+810bps</div></div>
+        <div class="hv"><div class="hv-k">Active Companies</div><div class="hv-v" id="v-companies">61</div></div>
+      </div>
+    </header>
+
+    <div class="mobile-nav">
+      <select id="mobileNav" onchange="go(this.value,document.querySelector('[data-page='+this.value+']'))">
+        <option value="portfolio">Portfolio</option>
+        <option value="pipeline">Deal Pipeline</option>
+        <option value="performance">Performance</option>
+        <option value="macro">Macro</option>
+        <option value="insights">AI Insights</option>
+        <option value="upload">Upload Data</option>
+      </select>
+    </div>
+
+    <main class="main-content">
+      <!-- PORTFOLIO -->
+      <div class="page active" id="page-portfolio">
+        <header class="page-header">
+          <p class="section-eyebrow">Executive</p>
+          <h1>Portfolio Overview</h1>
+          <p class="meta">Capital deployment · sector allocation · live from uploaded data</p>
+        </header>
+        <div class="kpi-grid" id="krow-portfolio"></div>
+        <div class="grid-2">
+          <div class="apple-card widget-card allocation-chart-card">
+            <div class="widget-head"><div><div class="widget-title">Allocation vs Deployed by Sector</div><div class="widget-sub">Capital deployment across portfolio segments</div></div></div>
+            <div class="chart-frame"><canvas id="c1"></canvas></div>
+          </div>
+          <div class="apple-card widget-card irr-visual-card">
+            <div class="widget-head"><div><div class="widget-title">IRR by Sector</div><div class="widget-sub">Sector returns ranked by IRR</div></div></div>
+            <div class="irr-visual" id="irrBars"></div>
+          </div>
+        </div>
+        <div class="insight-panel">
+          <p class="insight-eyebrow">Intelligence</p>
+          <h3 class="insight-title">AI Portfolio Intelligence</h3>
+          <ul class="insight-list" id="ins-portfolio"></ul>
+        </div>
+      </div>
+
+      <!-- PIPELINE -->
+      <div class="page" id="page-pipeline">
+        <header class="page-header">
+          <p class="section-eyebrow">Pipeline</p>
+          <h1>Deal Pipeline</h1>
+          <p class="meta">Status breakdown · category flow · conversion metrics</p>
+        </header>
+        <div class="kpi-grid" id="krow-pipeline"></div>
+        <div class="grid-2">
+          <div class="apple-card widget-card pipe-flow-card">
+            <div class="widget-head"><div><div class="widget-title">Monthly Pipeline by Stage — H1 2024</div><div class="widget-sub">Deal flow by screening stage</div></div></div>
+            <div class="pipe-flow-visual" id="pipeFlow"></div>
+          </div>
+          <div class="apple-card widget-card conv-funnel-card">
+            <div class="widget-head"><div><div class="widget-title">H1 2024 Deal Conversion</div><div class="widget-sub">Screen-to-close funnel</div></div></div>
+            <div class="conv-funnel-visual" id="convFunnel"></div>
+          </div>
+        </div>
+        <div class="insight-panel">
+          <p class="insight-eyebrow">Intelligence</p>
+          <h3 class="insight-title">AI Pipeline Intelligence</h3>
+          <ul class="insight-list" id="ins-pipeline"></ul>
+        </div>
+      </div>
+
+      <!-- PERFORMANCE -->
+      <div class="page" id="page-performance">
+        <header class="page-header">
+          <p class="section-eyebrow">Performance</p>
+          <h1>Investment Performance</h1>
+          <p class="meta">Trend analysis · jobs impact · year-over-year growth</p>
+        </header>
+        <div class="kpi-grid" id="krow-performance"></div>
+        <div class="grid-2-eq">
+          <div class="apple-card widget-card perf-nav-card">
+            <div class="widget-head"><div><div class="widget-title">NAV Growth — 8 Quarters</div><div class="widget-sub">Net asset value trend</div></div></div>
+            <div id="navGrowth"></div>
+          </div>
+          <div class="apple-card widget-card perf-alpha-card">
+            <div class="widget-head"><div><div class="widget-title">Portfolio IRR vs Benchmark</div><div class="widget-sub">Alpha generation over 8 quarters</div></div></div>
+            <div id="irrAlpha"></div>
+          </div>
+        </div>
+        <div class="insight-panel">
+          <p class="insight-eyebrow">Intelligence</p>
+          <h3 class="insight-title">AI Performance Intelligence</h3>
+          <ul class="insight-list" id="ins-performance"></ul>
+        </div>
+      </div>
+
+      <!-- MACRO -->
+      <div class="page" id="page-macro">
+        <header class="page-header">
+          <p class="section-eyebrow">Macro</p>
+          <h1>Geographic & Market View</h1>
+          <p class="meta">Country exposure · sector allocation · strategic context</p>
+        </header>
+        <div class="kpi-grid" id="macro-grid"></div>
+        <div class="grid-ctx" id="macro-ctx"></div>
+        <div class="insight-panel">
+          <p class="insight-eyebrow">Intelligence</p>
+          <h3 class="insight-title">AI Macro Intelligence</h3>
+          <ul class="insight-list" id="ins-macro"></ul>
+        </div>
+      </div>
+
+      <!-- INSIGHTS -->
+      <div class="page" id="page-insights">
+        <header class="page-header">
+          <p class="section-eyebrow">Intelligence</p>
+          <h1>AI Insights</h1>
+          <p class="meta">Consolidated analysis across portfolio, pipeline, performance & macro</p>
+        </header>
+        <div class="insight-panel">
+          <p class="insight-eyebrow">Full Analysis</p>
+          <h3 class="insight-title">Consolidated Portfolio Intelligence</h3>
+          <ul class="insight-list" id="ins-full"></ul>
+        </div>
+      </div>
+
+      <!-- UPLOAD -->
+      <div class="page" id="page-upload">
+        <header class="page-header">
+          <p class="section-eyebrow">Data</p>
+          <h1>Upload Data</h1>
+          <p class="meta">CSV or JSON · updates all dashboards instantly</p>
+        </header>
+        <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()">
+          <div class="dz-icon">↑</div>
+          <div class="dz-title">Drop a CSV or JSON file to update all dashboards</div>
+          <div class="dz-sub">Processed locally — charts, KPIs, and copilot refresh instantly</div>
+          <input type="file" id="fi" accept=".csv,.json,.txt" style="display:none" onchange="doFile(this.files[0])">
+        </div>
+        <div style="text-align:center;margin-bottom:20px">
+          <button class="reset-data-btn" onclick="loadAdioOfficial()">RESET TO ADIO DATA</button>
+        </div>
+        <div class="thinking" id="thk">PROCESSING YOUR DATA...</div>
+        <div class="csv-out" id="cso">
+          <div class="grid-2-eq">
+            <div class="insight-panel" style="margin-bottom:0">
+              <p class="insight-eyebrow">Analysis</p>
+              <h3 class="insight-title">Copilot Insights</h3>
+              <div id="csvIns" style="font-size:14px;font-weight:300;color:rgba(255,255,255,.75);line-height:1.7;white-space:pre-wrap;position:relative"></div>
+            </div>
+            <div class="apple-card widget-card">
+              <div class="widget-head">
+                <div><div class="widget-title" id="csvLbl">Data Preview</div><div class="widget-sub">Uploaded rows</div></div>
+              </div>
+              <div class="lux-table-wrap"><table class="lux-table" id="csvTbl"></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">ADIO Sovereign Dashboard · Abu Dhabi Investment Office · Data processed locally</footer>
+  </div>
+</div>
+
+<div class="copilot-overlay" id="copilotOverlay" onclick="closeCopilot()"></div>
+<aside class="copilot-panel" id="copilotPanel" aria-label="ADIO Intelligence">
+  <div class="copilot-panel-header">
+    <div class="copilot-panel-header-top">
+      <div class="copilot-brand">
+        <span class="copilot-brand-icon">✦</span>
+        <div>
+          <div class="copilot-panel-title">ADIO Intelligence</div>
+          <div class="copilot-panel-sub" id="copilotContext">Portfolio · live data</div>
+        </div>
+      </div>
+      <div class="copilot-header-actions">
+        <button type="button" class="copilot-clear-btn" id="copilotClearBtn" onclick="clearCopilotChat()" style="display:none">New chat</button>
+        <button class="copilot-expand" id="copilotExpandBtn" onclick="toggleCopilotExpand()" aria-label="Full view" title="Full view">⛶</button>
+        <button class="copilot-close" onclick="closeCopilot()" aria-label="Close">✕</button>
+      </div>
+    </div>
+  </div>
+  <div class="copilot-topics-bar" id="copilotTopicsPanel" role="tablist" aria-label="Data sections"></div>
+  <div class="copilot-messages-host" id="copilotPanelMessages"></div>
+  <div class="copilot-suggestions" id="copilotSuggestions"></div>
+  <div class="copilot-input-area">
+    <div class="copilot-input-wrap">
+      <button type="button" class="copilot-magic-btn" onclick="runDeepCopilot()" title="Deep analysis on this page" aria-label="Deep analysis">✦</button>
+      <textarea class="copilot-input" id="copilotInput" rows="1" placeholder="Ask anything…"></textarea>
+      <button class="copilot-send" id="copilotSend" onclick="sendCopilot()" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</aside>
+<button class="copilot-fab" id="copilotFab" onclick="openCopilot()" aria-label="Ask ADIO">
+  <span class="fab-badge"></span>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <span class="fab-label">Ask ADIO</span>
+</button>
+<div id="dashTooltip" class="dash-tooltip" role="tooltip" aria-hidden="true"></div>
+
+<script>
+const PAGE_META={
+  portfolio:{section:'Investment Intelligence',title:'Portfolio'},
+  pipeline:{section:'Deal Flow',title:'Deal Pipeline'},
+  performance:{section:'Analytics',title:'Performance'},
+  macro:{section:'Markets',title:'Macro View'},
+  insights:{section:'AI',title:'AI Insights'},
+  upload:{section:'Data',title:'Upload Data'}
+};
+
+/* ── Official ADIO Dashboard data (ADIO Dashboard.html) ── */
+const PORT=[
+  {s:'Technology',a:2800,d:2100,irr:18.4},
+  {s:'Healthcare',a:1900,d:1650,irr:14.2},
+  {s:'Real Estate',a:3200,d:3200,irr:9.8},
+  {s:'Energy',a:2400,d:2050,irr:11.6},
+  {s:'Logistics',a:1600,d:1200,irr:16.1},
+  {s:'FinTech',a:1100,d:780,irr:22.3},
+  {s:'AgriTech',a:650,d:420,irr:12.8}
+];
+const PIPE=[
+  {m:'Jan',sc:42,dd:18,ap:6,cl:3},
+  {m:'Feb',sc:38,dd:22,ap:8,cl:4},
+  {m:'Mar',sc:55,dd:19,ap:7,cl:5},
+  {m:'Apr',sc:61,dd:25,ap:11,cl:6},
+  {m:'May',sc:48,dd:21,ap:9,cl:4},
+  {m:'Jun',sc:72,dd:30,ap:14,cl:8}
+];
+const PERF=[
+  {q:"Q1 '23",nav:12.4,irr:11.2,bm:8.4},
+  {q:"Q2 '23",nav:13.1,irr:12.8,bm:8.9},
+  {q:"Q3 '23",nav:12.8,irr:11.9,bm:8.1},
+  {q:"Q4 '23",nav:14.2,irr:14.1,bm:9.2},
+  {q:"Q1 '24",nav:15.1,irr:15.3,bm:9.8},
+  {q:"Q2 '24",nav:16.4,irr:16.8,bm:10.1},
+  {q:"Q3 '24",nav:17.2,irr:17.4,bm:10.3},
+  {q:"Q4 '24",nav:18.9,irr:18.9,bm:10.8}
+];
+const ADIO_INSIGHTS={
+  portfolio:[
+    'FinTech shows the highest IRR at 22.3% but remains underdeployed at 71% of allocation — increasing deployment to full capacity could generate an estimated AED 92M in additional annual returns.',
+    'Real Estate is fully deployed at AED 3.2B yet produces the lowest IRR at 9.8%. A rebalancing review toward Technology and Logistics could improve blended portfolio IRR by an estimated 120 basis points.',
+    'Overall portfolio deployment efficiency stands at 84% (AED 13.2B of AED 15.7B allocated). The remaining AED 2.5B uncommitted capital represents a significant near-term return enhancement opportunity.'
+  ],
+  pipeline:[
+    'Deal pipeline velocity accelerated 71% YoY with June recording peak screening at 72 deals — the single strongest month in the past 12 months and a positive signal for H2 closings.',
+    'The 9.5% screen-to-close conversion rate outperforms the 8.5% sector benchmark, suggesting strong deal quality filtering upstream and disciplined due diligence standards.',
+    'Due diligence capacity absorbed 135 of 316 screened deals (42.7%). If conversion rates hold, the current H2 pipeline trajectory suggests 12 to 15 additional closings before year-end.'
+  ],
+  performance:[
+    'NAV grew 52.4% over 8 quarters from AED 12.4B to 18.9B — a compounded quarterly growth rate of 5.4%. At this trajectory the portfolio reaches AED 22B by Q4 2025 without additional capital deployment.',
+    'Portfolio IRR has outperformed the benchmark in all 8 consecutive quarters with average alpha of 6.4 percentage points — demonstrating consistent and systematic value creation rather than episodic outperformance.',
+    'Q3 2023 showed a temporary NAV dip from AED 13.1B to 12.8B before recovering strongly — the portfolio demonstrated resilience and accelerated growth in the following quarters, reaching peak IRR of 18.9% by Q4 2024.'
+  ],
+  macro:[
+    'The combination of 4.2% GDP growth and AED 73B FDI inflows creates a favourable deal environment — rising valuations may compress entry IRRs on new deals, making disciplined deal selection increasingly important.',
+    'Inflation at 2.1% (declining) combined with strong employment at 94.2% suggests a stable operating environment for portfolio companies, reducing operational risk across the majority of ADIO\'s 61 active investments.',
+    'AED 2.1T in trade volume (+8.7% YoY) is directly positive for ADIO\'s Logistics portfolio segment — the sector posted 16.1% IRR and remains underdeployed, presenting a timely opportunity to increase allocation.'
+  ],
+  full:[
+    'Portfolio IRR of 18.9% in Q4 2024 outperforms the regional benchmark by 810 basis points — driven by FinTech (22.3%) and Technology (18.4%) which together represent 26% of portfolio allocation.',
+    'FinTech remains underdeployed at 71% despite leading sector IRR. Full deployment of the remaining AED 320M allocation at current FinTech IRR could generate an additional AED 92M annually.',
+    'Deal pipeline velocity rose 71% YoY. The 9.5% screen-to-close conversion rate exceeds benchmark by 100bps, signalling disciplined quality filtering and strong deal origination capability.',
+    'NAV compounded at 52.4% over 8 quarters with consistent benchmark outperformance across every period. At current trajectory the portfolio reaches AED 22B by Q4 2025 without additional capital deployment.',
+    'Real Estate is fully deployed at AED 3.2B but generates the lowest sector IRR at 9.8%. A strategic rebalancing review toward Technology and Logistics could improve blended portfolio IRR by an estimated 120 basis points.'
+  ]
+};
+
+let useCustomData=false;
+let dataset=[],columns=[],numericCols=[],categoricalCols=[];
+let charts={},built={},csvCtx='';
+const PAGES=['portfolio','pipeline','performance','macro','insights','upload'];
+
+function getCtx(){
+  return{
+    port:`ADIO portfolio sector data: ${JSON.stringify(PORT)}. Total NAV AED 18.9B, Portfolio IRR 18.9%, 61 active companies, 30 deals closed YTD.`,
+    pipe:`ADIO deal pipeline H1 2024: ${JSON.stringify(PIPE)}. Screen-to-close rate 9.5% vs 8.5% benchmark. Total screened 316, closed 30.`,
+    perf:`ADIO performance trend: ${JSON.stringify(PERF)}. NAV grew from AED 12.4B to 18.9B over 8 quarters. Consistently outperformed benchmark.`,
+    macro:'UAE macro indicators: GDP growth 4.2%, FDI inflows AED 73B (+12.3%), inflation 2.1%, non-oil GDP 3.8%, employment 94.2%, trade volume AED 2.1T. Vision 2030 driving diversification.',
+    full:`Full ADIO data. Portfolio: ${JSON.stringify(PORT)}. NAV AED 18.9B, IRR 18.9%. Pipeline: ${JSON.stringify(PIPE)}. Performance: ${JSON.stringify(PERF)}. Macro: GDP 4.2%, FDI AED 73B, non-oil GDP 3.8%.`,
+    csv:csvCtx
+  };
+}
+
+function isNum(v){if(v==null||v==='')return false;const n=Number(String(v).replace(/[,\s]/g,''));return !isNaN(n)&&isFinite(n)}
+function num(v){return Number(String(v).replace(/[,\s%]/g,''))}
+function fmt(n,d=0){if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';return n.toLocaleString(undefined,{maximumFractionDigits:d})}
+function col(pat,list=columns){return list.find(c=>pat.test(c))}
+function analyze(){if(!dataset.length)return;columns=Object.keys(dataset[0]);numericCols=columns.filter(c=>dataset.every(r=>isNum(r[c])||r[c]===''||r[c]==null));categoricalCols=columns.filter(c=>!numericCols.includes(c))}
+function investCol(){return col(/invest|amount|value|revenue|aed|nav|capital/i,numericCols)||numericCols[0]}
+function sectorCol(){return col(/sector|industry|category|type/i,categoricalCols)||categoricalCols[0]}
+function countryCol(){return col(/country|region|market|geo/i,categoricalCols)}
+function statusCol(){return col(/status|stage|state/i,categoricalCols)}
+function yearCol(){return col(/year|date|quarter|period/i,columns)}
+function jobsCol(){return col(/job|employment|hire/i,numericCols)}
+function nameCol(){return col(/company|name|entity|deal/i,categoricalCols)||categoricalCols[0]}
+function groupSum(cat,nc){const g={};dataset.forEach(r=>{const k=String(r[cat]||'Unknown');g[k]=(g[k]||0)+num(r[nc]);});return g}
+
+function kpiCard(k,i){
+  const dark=i%3===2;
+  const cls=dark?'pastel-card kpi-dark':'pastel-card kpi-light';
+  return `<div class="${cls}">
+    <div class="pastel-label">${k.l}</div>
+    <div class="pastel-value">${k.v}</div>
+    ${k.s?`<div class="pastel-change">${k.s}</div>`:''}
+  </div>`;
+}
+function kpiHtml(items){return items.map((k,i)=>kpiCard(k,i)).join('')}
+function insHtml(list){return list.map((t,i)=>`<li><span class="insight-badge">${i+1}</span>${t}</li>`).join('')}
+
+function loadAdioOfficial(){
+  useCustomData=false;dataset=[];built={};csvCtx='';
+  localStorage.removeItem('adio_data');localStorage.removeItem('adio_source');localStorage.removeItem('adio_filename');
+  document.getElementById('liveLabel').textContent='LIVE — Q4 2024';
+  const up=document.getElementById('up-tab');if(up)up.querySelector('.nav-label').textContent='Upload Data';
+  document.getElementById('cso').style.display='none';
+  refreshAll();
+}
+
+function setDataset(data,source,filename){
+  useCustomData=true;
+  dataset=data.filter(r=>Object.values(r).some(v=>v!==''&&v!=null));
+  analyze();
+  localStorage.setItem('adio_data',JSON.stringify(dataset));
+  localStorage.setItem('adio_source',source);
+  if(filename)localStorage.setItem('adio_filename',filename);
+  csvCtx=`Uploaded data (${dataset.length} rows). Columns: ${columns.join(', ')}. Sample: ${JSON.stringify(dataset.slice(0,8))}`;
+  built={};refreshAll();
+  if(source==='upload'){
+    const up=document.getElementById('up-tab');if(up)up.querySelector('.nav-label').textContent='Upload ✓';
+    document.getElementById('liveLabel').textContent=(filename||'Uploaded').slice(0,18);
+    renderUploadPreview();
+    document.getElementById('csvIns').textContent=generateCustomInsights().map((t,i)=>`${i+1}. ${t}`).join('\n\n');
+    document.getElementById('thk').style.display='none';
+    document.getElementById('cso').style.display='block';
+  }
+}
+
+function refreshAll(){
+  if(useCustomData)renderCustomAll();else renderAdioAll();
+  destroyCharts();
+  if(useCustomData){bPortCustom();bPipeCustom();bPerfCustom();}
+  else{bPortAdio();bPipeAdio();bPerfAdio();}
+  built={p1:true,p2:true,p3:true};
+}
+
+function renderAdioAll(){
+  document.getElementById('v-nav').textContent='AED 18.9B';
+  document.getElementById('v-irr').textContent='18.9%';
+  document.getElementById('v-alpha').textContent='+810bps';
+  document.getElementById('v-companies').textContent='61';
+  document.getElementById('krow-portfolio').innerHTML=kpiHtml([
+    {l:'Total NAV',v:'AED 18.9B',s:'+52.4% since Q1 2023'},
+    {l:'Portfolio IRR',v:'18.9%',s:'810bps above benchmark'},
+    {l:'Deployed Capital',v:'AED 13.2B',s:'84% of AED 15.7B alloc.'},
+    {l:'Active Companies',v:'61',s:'across 7 sectors'},
+    {l:'Deals Closed YTD',v:'30',s:'+71% YoY pipeline growth'},
+    {l:'Avg Deal IRR',v:'14.9%',s:'vs 9.8% regional average'}
+  ]);
+  document.getElementById('krow-pipeline').innerHTML=kpiHtml([
+    {l:'Deals Screened YTD',v:'316',s:'H1 2024 total'},
+    {l:'Screen-to-Close',v:'9.5%',s:'vs 8.5% benchmark'},
+    {l:'Deals Closed',v:'30',s:'+71% YoY'},
+    {l:'Peak Month',v:'June',s:'72 deals screened'}
+  ]);
+  document.getElementById('krow-performance').innerHTML=kpiHtml([
+    {l:'Current NAV',v:'AED 18.9B',s:'Q4 2024'},
+    {l:'8-Quarter Growth',v:'+52.4%',s:'from AED 12.4B'},
+    {l:'Peak IRR',v:'18.9%',s:'Q4 2024'},
+    {l:'Quarters Beating BM',v:'8 / 8',s:'consistent outperformance'}
+  ]);
+  document.getElementById('macro-grid').innerHTML=kpiHtml([
+    {l:'UAE GDP Growth',v:'4.2%',s:'▲ +0.4pp YoY'},
+    {l:'FDI Inflows',v:'AED 73B',s:'▲ +12.3% YoY'},
+    {l:'Inflation Rate',v:'2.1%',s:'▼ −0.3pp YoY'},
+    {l:'Non-Oil GDP',v:'3.8%',s:'▲ +0.6pp YoY'},
+    {l:'Employment Rate',v:'94.2%',s:'▲ +1.1pp YoY'},
+    {l:'Trade Volume',v:'AED 2.1T',s:'▲ +8.7% YoY'}
+  ]);
+  document.getElementById('macro-ctx').innerHTML=[
+    {t:'Vision 2030 Alignment',b:"UAE's diversification mandate creates visible deal flow 3 to 5 years ahead across technology, healthcare, and clean energy — ADIO's three highest-performing sectors by IRR."},
+    {t:'FDI Momentum',b:'AED 73B in inflows (+12.3% YoY) confirms sustained international confidence in UAE. Creates co-investment and co-development pathways with inbound strategic capital from key markets.'},
+    {t:'Non-Oil Growth Validation',b:"3.8% non-oil GDP growth validates the diversification trajectory. Technology and logistics sectors contribute most strongly — directly aligned with ADIO's strongest IRR segments."},
+    {t:'Regional Competitive Dynamics',b:"Saudi PIF accelerating deployment pace across similar sectors. ADIO's operational value-creation model versus pure capital deployment maintains a differentiated position in quality deal origination."}
+  ].map(c=>`<div class="apple-card widget-card"><div class="widget-title">${c.t}</div><div class="widget-sub" style="margin-top:8px">${c.b}</div></div>`).join('');
+  document.getElementById('ins-portfolio').innerHTML=insHtml(ADIO_INSIGHTS.portfolio);
+  document.getElementById('ins-pipeline').innerHTML=insHtml(ADIO_INSIGHTS.pipeline);
+  document.getElementById('ins-performance').innerHTML=insHtml(ADIO_INSIGHTS.performance);
+  document.getElementById('ins-macro').innerHTML=insHtml(ADIO_INSIGHTS.macro);
+  document.getElementById('ins-full').innerHTML=insHtml(ADIO_INSIGHTS.full);
+}
+
+function renderCustomAll(){
+  const inv=investCol(),sec=sectorCol(),cty=countryCol(),jobs=jobsCol(),nm=nameCol(),st=statusCol();
+  const total=inv?dataset.reduce((s,r)=>s+num(r[inv]),0):0;
+  document.getElementById('v-nav').textContent=inv?`AED ${fmt(total)}M`:'—';
+  document.getElementById('v-irr').textContent=String(dataset.length);
+  document.getElementById('v-alpha').textContent=sec?String(new Set(dataset.map(r=>r[sec])).size):'—';
+  document.getElementById('v-companies').textContent=cty?String(new Set(dataset.map(r=>r[cty])).size):'—';
+  const maxRow=inv?[...dataset].sort((a,b)=>num(b[inv])-num(a[inv]))[0]:null;
+  document.getElementById('krow-portfolio').innerHTML=kpiHtml([
+    {l:'Total Investment',v:inv?`AED ${fmt(total)}M`:'—',s:`${dataset.length} records`},
+    {l:'Avg Deal Size',v:inv?`AED ${fmt(total/dataset.length,1)}M`:'—',s:'per record'},
+    {l:'Active Companies',v:String(nm?new Set(dataset.map(r=>r[nm])).size:dataset.length),s:`${sec?new Set(dataset.map(r=>r[sec])).size:0} sectors`},
+    {l:'Total Jobs',v:jobs?fmt(dataset.reduce((s,r)=>s+num(r[jobs]),0)):'—',s:'created'},
+    {l:'Top Investment',v:maxRow&&inv?`AED ${fmt(num(maxRow[inv]))}M`:'—',s:maxRow&&nm?String(maxRow[nm]).slice(0,24):''},
+    {l:'Data Source',v:'Upload',s:localStorage.getItem('adio_filename')||'custom file'}
+  ]);
+  const active=st?dataset.filter(r=>/active|open/i.test(String(r[st]))).length:dataset.length;
+  const completed=st?dataset.filter(r=>/complete|closed|done/i.test(String(r[st]))).length:0;
+  document.getElementById('krow-pipeline').innerHTML=kpiHtml([
+    {l:'Total Records',v:String(dataset.length),s:'in dataset'},
+    {l:'Active',v:String(active),s:'active deals'},
+    {l:'Completed',v:String(completed),s:'closed'},
+    {l:'Completion',v:st?`${((completed/dataset.length)*100).toFixed(0)}%`:'—',s:'of pipeline'}
+  ]);
+  const yr=yearCol();
+  let peakYr='—',peakVal=0,growth='—';
+  if(yr&&inv){const g=groupSum(yr,inv);const s=Object.entries(g).sort((a,b)=>b[1]-a[1]);if(s.length){peakYr=s[0][0];peakVal=s[0][1];}const yrs=Object.keys(g).sort();if(yrs.length>=2){const f=g[yrs[0]],l=g[yrs[yrs.length-1]];growth=f?`+${(((l-f)/f)*100).toFixed(1)}%`:'—';}}
+  document.getElementById('krow-performance').innerHTML=kpiHtml([
+    {l:'Peak Year',v:peakYr,s:inv?`AED ${fmt(peakVal)}M`:'—'},
+    {l:'Growth',v:growth,s:'trend'},
+    {l:'Total Jobs',v:jobs?fmt(dataset.reduce((s,r)=>s+num(r[jobs]),0)):'—',s:'impact'},
+    {l:'Records',v:String(dataset.length),s:'tracked'}
+  ]);
+  const items=[];
+  if(cty&&inv)Object.entries(groupSum(cty,inv)).sort((a,b)=>b[1]-a[1]).slice(0,6).forEach(([k,v],i)=>items.push({l:k,v:`AED ${fmt(v)}M`,s:i===0?'Leading market':''}));
+  if(items.length<6&&sec&&inv)Object.entries(groupSum(sec,inv)).sort((a,b)=>b[1]-a[1]).slice(0,6-items.length).forEach(([k,v])=>items.push({l:k,v:`AED ${fmt(v)}M`,s:'sector'}));
+  document.getElementById('macro-grid').innerHTML=kpiHtml(items);
+  document.getElementById('macro-ctx').innerHTML=`<div class="apple-card widget-card"><div class="widget-title">Uploaded Data</div><div class="widget-sub" style="margin-top:8px">${dataset.length} records analysed from your upload. Click RESET TO ADIO DATA to restore official dashboard figures.</div></div>`;
+  const ins=generateCustomInsights();
+  document.getElementById('ins-portfolio').innerHTML=insHtml(ins.slice(0,3));
+  document.getElementById('ins-pipeline').innerHTML=insHtml(ins.slice(1,4));
+  document.getElementById('ins-performance').innerHTML=insHtml(ins.slice(0,3));
+  document.getElementById('ins-macro').innerHTML=insHtml(ins.slice(2,5));
+  document.getElementById('ins-full').innerHTML=insHtml(ins);
+}
+
+function generateCustomInsights(){
+  const inv=investCol(),sec=sectorCol(),cty=countryCol(),jobs=jobsCol(),st=statusCol();
+  const ins=[];
+  if(inv){const t=dataset.reduce((s,r)=>s+num(r[inv]),0);ins.push(`Total investment is AED ${fmt(t)}M across ${dataset.length} records.`);}
+  if(sec&&inv){const top=Object.entries(groupSum(sec,inv)).sort((a,b)=>b[1]-a[1])[0];if(top)ins.push(`${top[0]} leads with AED ${fmt(top[1])}M.`);}
+  if(cty&&inv){const top=Object.entries(groupSum(cty,inv)).sort((a,b)=>b[1]-a[1])[0];if(top)ins.push(`${top[0]} is the top market at AED ${fmt(top[1])}M.`);}
+  if(st){const a=dataset.filter(r=>/active/i.test(String(r[st]))).length;ins.push(`${a} of ${dataset.length} records are active.`);}
+  if(jobs)ins.push(`${fmt(dataset.reduce((s,r)=>s+num(r[jobs]),0))} jobs created across portfolio.`);
+  return ins.slice(0,5);
+}
+
+function destroyCharts(){Object.values(charts).forEach(c=>c&&c.destroy());charts={}}
+function escTip(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+let dashTipTarget=null,dashTipTouchTimer=null;
+function showDashTip(html,e){
+  const tip=document.getElementById('dashTooltip');
+  if(!tip)return;
+  tip.innerHTML=html;
+  tip.classList.add('visible');
+  tip.setAttribute('aria-hidden','false');
+  positionDashTip(e);
+}
+function positionDashTip(e){
+  const tip=document.getElementById('dashTooltip');
+  if(!tip||!tip.classList.contains('visible'))return;
+  const pad=14;const tw=tip.offsetWidth,th=tip.offsetHeight;
+  let x=e.clientX+pad,y=e.clientY+pad;
+  if(x+tw>window.innerWidth-pad)x=e.clientX-tw-pad;
+  if(y+th>window.innerHeight-pad)y=e.clientY-th-pad;
+  tip.style.left=x+'px';tip.style.top=y+'px';
+}
+function hideDashTip(){
+  const tip=document.getElementById('dashTooltip');
+  if(!tip)return;
+  tip.classList.remove('visible');
+  tip.setAttribute('aria-hidden','true');
+  dashTipTarget=null;
+}
+function initDashboardTooltips(){
+  document.addEventListener('mouseover',e=>{
+    const el=e.target.closest('[data-tip]');
+    if(!el){if(dashTipTarget)hideDashTip();return;}
+    if(el!==dashTipTarget){
+      dashTipTarget=el;
+      const raw=el.getAttribute('data-tip');
+      const title=el.getAttribute('data-tip-title');
+      showDashTip(title?`<span class="tip-title">${escTip(title)}</span>${escTip(raw)}`:escTip(raw),e);
+    }else positionDashTip(e);
+  });
+  document.addEventListener('mousemove',e=>{if(dashTipTarget)positionDashTip(e);});
+  document.addEventListener('mouseout',e=>{
+    if(dashTipTarget&&(!e.relatedTarget||!dashTipTarget.contains(e.relatedTarget))&&!e.relatedTarget?.closest?.('[data-tip]'))hideDashTip();
+  });
+  document.addEventListener('touchstart',e=>{
+    const el=e.target.closest('[data-tip]');
+    if(!el){hideDashTip();return;}
+    dashTipTarget=el;
+    const raw=el.getAttribute('data-tip');
+    const title=el.getAttribute('data-tip-title');
+    const t=e.touches[0];
+    showDashTip(title?`<span class="tip-title">${escTip(title)}</span>${escTip(raw)}`:escTip(raw),{clientX:t.clientX,clientY:t.clientY});
+    clearTimeout(dashTipTouchTimer);
+    dashTipTouchTimer=setTimeout(hideDashTip,2500);
+  },{passive:true});
+}
+const chartOpts={responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:13,family:'Darker Grotesque',weight:'500'},color:'#888888',boxWidth:10,padding:14}}},scales:{x:{grid:{display:false},ticks:{font:{size:13,family:'Darker Grotesque',weight:'500'},color:'#888888'}},y:{grid:{color:'rgba(0,0,0,.05)'},ticks:{font:{size:13,family:'Darker Grotesque',weight:'500'},color:'#888888'}}}};
+const ALLOC_NAVY='#1A3E6E';
+const ALLOC_NAVY_HOVER='#153258';
+const DEPLOY_GOLD='#a57735';
+const DEPLOY_GOLD_HOVER='#8f662e';
+const allocationAnim={duration:1100,easing:'easeOutCubic',delay:ctx=>ctx.dataIndex*60+ctx.datasetIndex*30};
+const allocationChartPlugins={tooltip:{backgroundColor:'#232c35',titleColor:'#fff',bodyColor:'rgba(255,255,255,.85)',titleFont:{family:'Darker Grotesque',size:14,weight:'700'},bodyFont:{family:'Darker Grotesque',size:13},padding:14,cornerRadius:10,displayColors:true}};
+
+function buildAllocationChart(labels,allocated,deployed){
+  const dual=deployed&&deployed.length;
+  charts.c1=new Chart(document.getElementById('c1'),{
+    type:'bar',
+    data:{
+      labels,
+      datasets:dual?[
+        {label:'Allocated (AED M)',data:allocated,backgroundColor:ALLOC_NAVY,hoverBackgroundColor:ALLOC_NAVY_HOVER,borderWidth:0,borderRadius:6,borderSkipped:false},
+        {label:'Deployed (AED M)',data:deployed,backgroundColor:DEPLOY_GOLD,hoverBackgroundColor:DEPLOY_GOLD_HOVER,borderWidth:0,borderRadius:6,borderSkipped:false}
+      ]:[{label:'Investment (AED M)',data:allocated,backgroundColor:DEPLOY_GOLD,hoverBackgroundColor:DEPLOY_GOLD_HOVER,borderWidth:0,borderRadius:6,borderSkipped:false}]
+    },
+    options:{
+      ...chartOpts,
+      animation:allocationAnim,
+      interaction:{mode:'index',intersect:false},
+      plugins:{...chartOpts.plugins,...allocationChartPlugins,legend:{...chartOpts.plugins.legend,labels:{...chartOpts.plugins.legend.labels,usePointStyle:true,pointStyle:'rectRounded'}}},
+      scales:{
+        ...chartOpts.scales,
+        x:{...chartOpts.scales.x,ticks:{...chartOpts.scales.x.ticks,maxRotation:45,minRotation:0}},
+        y:{...chartOpts.scales.y,grid:{color:'rgba(0,0,0,.05)'},ticks:{...chartOpts.scales.y.ticks,callback:v=>v>=1000?`${(v/1000).toFixed(1)}B`:`${v}M`}}
+      }
+    }
+  });
+}
+
+function renderIrrVisual(containerId,rows,{max=25,benchmark,labelKey='s',valueKey='irr',suffix='%',formatVal}={}){
+  const el=document.getElementById(containerId);
+  if(!el||!rows.length)return;
+  const sorted=[...rows].sort((a,b)=>num(b[valueKey])-num(a[valueKey]));
+  const scaleMax=max||Math.max(...sorted.map(r=>num(r[valueKey])),1)*1.15;
+  const bmLine=benchmark!=null?`<div class="irr-benchmark" style="left:${Math.min(98,(benchmark/scaleMax)*100)}%"><span>BM ${benchmark}${suffix}</span></div>`:'';
+  el.innerHTML=`<div class="irr-visual-inner">${bmLine}${sorted.map((r,i)=>{const v=num(r[valueKey]);const w=Math.max(4,(v/scaleMax)*100);const leader=i===0;const val=formatVal?formatVal(v,r):`${v}${suffix}`;const tip=`${r[labelKey]}\n${val}${leader?'\nTop performer':''}\nRank #${i+1} of ${sorted.length}`;return `
+    <div class="irr-item${leader?' is-leader':''}" style="--delay:${i*.07}s;--w:${w}%" data-tip-title="IRR by Sector" data-tip="${escTip(tip)}">
+      <span class="irr-rank">${i+1}</span>
+      <div class="irr-mid">
+        <span class="irr-label">${r[labelKey]}</span>
+        <div class="irr-track"><div class="irr-fill"></div><div class="irr-knob"></div></div>
+      </div>
+      <span class="irr-val">${val}</span>
+    </div>`;}).join('')}</div>`;
+}
+
+function bPortAdio(){
+  renderIrrVisual('irrBars',PORT,{max:25,benchmark:10.8});
+  buildAllocationChart(PORT.map(p=>p.s),PORT.map(p=>p.a),PORT.map(p=>p.d));
+}
+
+const ADIO_FUNNEL=[
+  {label:'Screened',count:316,pct:100,color:'#1A3E6E'},
+  {label:'Due diligence',count:135,pct:42.7,color:'#2D7A9E'},
+  {label:'Approved',count:55,pct:17.4,color:'#C4922A'},
+  {label:'Closed',count:30,pct:9.5,color:'#1F6B54'}
+];
+
+function renderConversionFunnel(containerId,stages,summary){
+  const el=document.getElementById(containerId);
+  if(!el||!stages.length)return;
+  const stagesHtml=stages.map((s,i)=>{
+    const tip=`${s.label}\n${s.count} deals · ${s.pct}% of screened`;
+    return `<div class="conv-row" data-tip-title="Conversion funnel" data-tip="${escTip(tip)}">
+      <div class="conv-row-main">
+        <span class="conv-indicator" style="background:${s.color};height:${Math.round(20+num(s.pct)*.14)}px"></span>
+        <span class="conv-label">${s.label}</span>
+      </div>
+      <span class="conv-stats"><span class="conv-count">${s.count}</span><span class="conv-pct">${s.pct}%</span></span>
+    </div>`;
+  }).join('');
+  const foot=summary?`<div class="conv-summary">
+    <div class="conv-summary-val">${summary.value}</div>
+    <div class="conv-summary-lbl">${summary.label}</div>
+    <div class="conv-summary-note">${summary.delta}</div>
+  </div>`:'';
+  el.innerHTML=`<div class="conv-funnel-stages">${stagesHtml}</div>${foot}`;
+}
+
+function bPipeAdio(){
+  renderConversionFunnel('convFunnel',ADIO_FUNNEL,{value:'9.5%',label:'Screen-to-close rate',delta:'+100bps vs 8.5% sector benchmark'});
+  renderPipelineFlow('pipeFlow',PIPE);
+}
+
+const PIPE_STAGE_COLORS={
+  screened:{bg:'#1A3E6E',label:'Screening'},
+  diligence:{bg:'#2D7A9E',label:'Due diligence'},
+  approved:{bg:'#C4922A',label:'Approved'},
+  closed:{bg:'#1F6B54',label:'Closed'}
+};
+
+function renderPipelineFlow(containerId,rows){
+  const el=document.getElementById(containerId);
+  if(!el||!rows.length)return;
+  const hasStages=rows[0].dd!=null;
+  const maxSc=Math.max(...rows.map(r=>num(r.sc)||num(r.v)||1));
+  const peakIdx=rows.reduce((bi,r,i,arr)=>num(r.sc||r.v)>num(arr[bi].sc||arr[bi].v)?i:bi,0);
+  const legend=hasStages?Object.values(PIPE_STAGE_COLORS).map(s=>`<span class="pipe-leg-item"><i style="background:${s.bg}"></i>${s.label}</span>`).join(''):'';
+  const cols=rows.map((r,i)=>{
+    const sc=num(r.sc??r.v);
+    const scale=sc/maxSc;
+    const peak=i===peakIdx;
+    let stack='';
+    let colTip=null;
+    if(hasStages){
+      const cl=num(r.cl),ap=num(r.ap),dd=num(r.dd);
+      const monthName=r.m||r.label;
+      const monthTip=`${monthName}\nScreened: ${sc}\nDue Diligence: ${dd}\nApproved: ${ap}\nClosed: ${cl}`;
+      const segs=[
+        {k:'closed',v:cl},
+        {k:'approved',v:Math.max(0,ap-cl)},
+        {k:'diligence',v:Math.max(0,dd-ap)},
+        {k:'screened',v:Math.max(0,sc-dd)}
+      ];
+      stack=segs.filter(s=>s.v>0).map((s,j)=>{
+        const pct=((s.v/sc)*100).toFixed(1);
+        const tip=`${monthName} · ${PIPE_STAGE_COLORS[s.k].label}\n${s.v} deals · ${pct}% of month`;
+        return `<div class="pipe-seg" style="--h:${pct}%;--c:${PIPE_STAGE_COLORS[s.k].bg};--delay:${j*.06+i*.09}s" data-tip-title="Pipeline Stage" data-tip="${escTip(tip)}"></div>`;
+      }).join('');
+      colTip=monthTip;
+    }else{
+      stack=`<div class="pipe-seg" style="--h:100%;--c:#1A3E6E;--delay:${i*.08}s" data-tip-title="Pipeline" data-tip="${escTip(`${r.m||r.label}\n${sc} deals`)}"></div>`;
+    }
+    return `<div class="pipe-month${peak?' is-peak':''}">
+      <div class="pipe-col-wrap" style="--scale:${scale.toFixed(3)}"${colTip?` data-tip-title="Monthly Summary" data-tip="${escTip(colTip)}"`:''}>
+        <div class="pipe-stack">${stack}</div>
+      </div>
+      <div class="pipe-month-meta">
+        <span class="pipe-month-name">${r.m||r.label}</span>
+        <span class="pipe-month-val">${sc}</span>
+      </div>
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="pipe-flow-head">${legend}</div><div class="pipe-flow-grid">${cols}</div>`;
+}
+
+function perfChartCoords(points,key,opts){
+  opts=opts||{};
+  const pad=opts.pad||{l:8,r:8,t:16,b:8},w=opts.w||400,h=opts.h||200;
+  const vals=points.map(p=>num(p[key]));
+  const min=opts.min!=null?opts.min:Math.min(...vals)*.92;
+  const max=opts.max!=null?opts.max:Math.max(...vals)*1.04;
+  const plotW=w-pad.l-pad.r,plotH=h-pad.t-pad.b;
+  return points.map((p,i)=>({x:pad.l+(i/Math.max(points.length-1,1))*plotW,y:pad.t+plotH-((num(p[key])-min)/(max-min||1))*plotH,v:num(p[key]),q:p.q,raw:p}));
+}
+
+function perfDualScale(points,keys){
+  const vals=keys.flatMap(k=>points.map(p=>num(p[k])));
+  return{min:Math.min(...vals)*.92,max:Math.max(...vals)*1.04};
+}
+
+function renderNavGrowth(containerId,points){
+  const el=document.getElementById(containerId);
+  if(!el||!points.length)return;
+  const coords=perfChartCoords(points,'nav');
+  const line=coords.map((c,i)=>`${i?'L':'M'}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+  const area=`${line} L${coords.at(-1).x.toFixed(1)},${(200-8).toFixed(1)} L${coords[0].x.toFixed(1)},${(200-8).toFixed(1)} Z`;
+  const first=points[0],last=points.at(-1);
+  const growth=first.nav?`+${(((last.nav-first.nav)/first.nav)*100).toFixed(1)}%`:'—';
+  const dots=coords.map((c,i)=>{const peak=i===coords.length-1;const tip=`${c.q}\nNAV AED ${c.v}B`;return `<circle class="perf-dot" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${peak?5:4}" fill="${peak?'#C4922A':'#1A3E6E'}" stroke="#fff" stroke-width="2" data-tip-title="NAV" data-tip="${escTip(tip)}"/>`;}).join('');
+  el.innerHTML=`<div class="perf-chart-wrap"><svg viewBox="0 0 400 200" preserveAspectRatio="none"><defs><linearGradient id="navGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1A3E6E" stop-opacity=".22"/><stop offset="100%" stop-color="#1A3E6E" stop-opacity="0"/></linearGradient></defs><path d="${area}" fill="url(#navGrad)"/><path d="${line}" fill="none" stroke="#1A3E6E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg></div>
+  <div class="perf-chart-labels">${points.map(p=>`<span class="perf-chart-lbl">${p.q}</span>`).join('')}</div>
+  <div class="perf-nav-foot"><div class="perf-nav-start"><div class="perf-nav-k">Start</div><div class="perf-nav-v">AED ${first.nav}B</div></div><div class="perf-nav-growth">${growth}</div><div class="perf-nav-end"><div class="perf-nav-k">Current</div><div class="perf-nav-v">AED ${last.nav}B</div></div></div>`;
+}
+
+function perfAlphaStats(points){
+  const hasBm=points[0]?.bm!=null;
+  if(!hasBm)return null;
+  const alphas=points.map(p=>p.irr-p.bm);
+  return{peak:Math.max(...alphas),avg:alphas.reduce((a,b)=>a+b,0)/alphas.length,beat:points.filter(p=>p.irr>p.bm).length,total:points.length};
+}
+
+function renderIrrAlpha(containerId,points,stats){
+  const el=document.getElementById(containerId);
+  if(!el||!points.length)return;
+  const hasBm=points[0]?.bm!=null;
+  const scale=hasBm?perfDualScale(points,['irr','bm']):{};
+  const irrC=perfChartCoords(points,'irr',scale);
+  const bmC=hasBm?perfChartCoords(points,'bm',scale):null;
+  const irrLine=irrC.map((c,i)=>`${i?'L':'M'}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
+  const bmLine=bmC?bmC.map((c,i)=>`${i?'L':'M'}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(''):'';
+  let alphaArea='';
+  if(hasBm&&bmC){
+    let d=`M${irrC[0].x.toFixed(1)},${irrC[0].y.toFixed(1)}`;
+    for(let i=1;i<irrC.length;i++)d+=` L${irrC[i].x.toFixed(1)},${irrC[i].y.toFixed(1)}`;
+    for(let i=bmC.length-1;i>=0;i--)d+=` L${bmC[i].x.toFixed(1)},${bmC[i].y.toFixed(1)}`;
+    alphaArea=`<path d="${d} Z" fill="rgba(196,146,42,.14)"/>`;
+  }
+  const dots=irrC.map((c,i)=>{const tip=hasBm?`${c.q}\nIRR ${c.v}% · Benchmark ${points[i].bm}%`:`${c.q}\n${c.v}%`;return `<circle class="perf-dot" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="4" fill="#C4922A" stroke="#fff" stroke-width="2" data-tip-title="Portfolio IRR" data-tip="${escTip(tip)}"/>`;}).join('');
+  const leg=hasBm?`<div class="perf-legend"><span class="perf-leg"><i style="background:#C4922A"></i>Portfolio</span><span class="perf-leg bm"><i></i>Benchmark</span></div>`:'';
+  const st=stats||perfAlphaStats(points);
+  const statsHtml=st?`<div class="perf-alpha-stats"><div class="perf-stat"><div class="perf-stat-k">Peak alpha</div><div class="perf-stat-v accent">+${st.peak.toFixed(1)}pp</div></div><div class="perf-stat"><div class="perf-stat-k">Avg alpha</div><div class="perf-stat-v">+${st.avg.toFixed(1)}pp</div></div><div class="perf-stat"><div class="perf-stat-k">Quarters beat</div><div class="perf-stat-v">${st.beat} / ${st.total}</div></div></div>`:'';
+  el.innerHTML=`<div class="perf-chart-wrap"><svg viewBox="0 0 400 200" preserveAspectRatio="none">${alphaArea}${hasBm?`<path d="${bmLine}" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5" stroke-linecap="round"/>`:''}<path d="${irrLine}" fill="none" stroke="#C4922A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${dots}</svg></div>
+  <div class="perf-chart-labels">${points.map(p=>`<span class="perf-chart-lbl">${p.q}</span>`).join('')}</div>${leg}${statsHtml}`;
+}
+
+function bPerfAdio(){
+  renderNavGrowth('navGrowth',PERF);
+  renderIrrAlpha('irrAlpha',PERF);
+}
+
+function bPortCustom(){
+  const sec=sectorCol(),inv=investCol();if(!sec||!inv)return;
+  const g=groupSum(sec,inv);const labels=Object.keys(g);const vals=labels.map(l=>g[l]);
+  renderIrrVisual('irrBars',labels.map(l=>({s:l,irr:g[l]})),{max:Math.max(...vals,1)*1.1,suffix:'',formatVal:v=>`AED ${fmt(v)}M`});
+  buildAllocationChart(labels,vals,null);
+}
+
+function bPipeCustom(){
+  const sec=sectorCol()||statusCol()||countryCol(),st=statusCol(),inv=investCol();if(!sec)return;
+  const g=groupSum(sec,inv||columns[0]);const labels=Object.keys(g);const total=dataset.length;
+  const funnel=st?(()=>{const sg={};dataset.forEach(r=>{const k=String(r[st]||'Unknown');sg[k]=(sg[k]||0)+1;});return Object.entries(sg).sort((a,b)=>b[1]-a[1]);})():labels.map(l=>[l,g[l]]);
+  const colors=['#1A3E6E','#2D7A9E','#C4922A','#1F6B54'];
+  const topCount=funnel[0]?.[1]||total;
+  const stages=funnel.slice(0,4).map(([l,n],i)=>({label:l,count:n,pct:+((n/topCount)*100).toFixed(1),color:colors[i%4]}));
+  const active=st?dataset.filter(r=>/active/i.test(String(r[st]))).length:Math.round(total*.7);
+  const activePct=+((active/total)*100).toFixed(1);
+  renderConversionFunnel('convFunnel',stages,{value:String(active),label:'Active pipeline',delta:`${activePct}% of ${total} records`});
+  renderPipelineFlow('pipeFlow',labels.slice(0,8).map(l=>({m:l.slice(0,3),v:g[l]})));
+}
+
+function bPerfCustom(){
+  const yr=yearCol(),inv=investCol(),jobs=jobsCol();
+  if(yr&&inv){
+    const g=groupSum(yr,inv);const labels=Object.keys(g).sort();
+    const navPts=labels.map(l=>({q:l,nav:g[l]}));
+    renderNavGrowth('navGrowth',navPts);
+  }
+  if(yr&&jobs){
+    const g=groupSum(yr,jobs);const labels=Object.keys(g).sort();const vals=labels.map(l=>g[l]);
+    const irrPts=labels.map((l,i)=>({q:l,irr:vals[i]}));
+    renderIrrAlpha('irrAlpha',irrPts);
+  }else if(yr&&inv){
+    const g=groupSum(yr,inv);const labels=Object.keys(g).sort();const vals=labels.map(l=>g[l]);
+    renderIrrAlpha('irrAlpha',labels.map((l,i)=>({q:l,irr:vals[i]})));
+  }
+}
+
+function renderUploadPreview(){
+  document.getElementById('csvLbl').textContent=`${dataset.length} rows detected`;
+  document.getElementById('csvTbl').innerHTML=`<thead><tr>${columns.map(k=>`<th>${k}</th>`).join('')}</tr></thead><tbody>${dataset.slice(0,15).map(r=>`<tr>${columns.map(k=>`<td>${String(r[k]||'').slice(0,30)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+}
+
+function answerAdioQuestion(q,tab){
+  const question=q.toLowerCase();
+  if(/nav|asset value/i.test(question))return 'Total NAV is AED 18.9B as of Q4 2024, up 52.4% from AED 12.4B in Q1 2023.';
+  if(/irr|return/i.test(question))return 'Portfolio IRR is 18.9% in Q4 2024, outperforming the benchmark by 810 basis points (10.8% benchmark).';
+  if(/fintech|sector.*alloc|increase allocation/i.test(question))return 'FinTech has the highest IRR at 22.3% but is only 71% deployed (AED 780M of AED 1,100M allocated). Increasing to full deployment could generate ~AED 92M additional annual returns.';
+  if(/unrealised|return potential/i.test(question))return 'AED 2.5B uncommitted capital across underdeployed sectors. Full FinTech deployment alone could add AED 92M annually at 22.3% IRR.';
+  if(/pipeline|screen|close|h2|deals/i.test(question))return '316 deals screened H1 2024, 30 closed (9.5% conversion vs 8.5% benchmark). H2 trajectory suggests 12–15 additional closings.';
+  if(/bottleneck/i.test(question))return 'Due diligence is the main bottleneck: 135 of 316 screened deals (42.7%) entered DD, with 55 approved and 30 closed.';
+  if(/2025|projected nav/i.test(question))return 'At 5.4% compounded quarterly growth, NAV is projected to reach AED 22B by Q4 2025 without additional capital deployment.';
+  if(/q3 2023|dip/i.test(question))return 'Q3 2023 NAV dipped from AED 13.1B to 12.8B before recovering. Portfolio IRR was 11.9% vs 8.1% benchmark — still outperforming.';
+  if(/macro|gdp|fdi/i.test(question))return 'UAE GDP 4.2%, FDI AED 73B (+12.3%), inflation 2.1%, non-oil GDP 3.8%, employment 94.2%, trade AED 2.1T.';
+  if(/risk|competitive|saudi|pif/i.test(question))return 'Saudi PIF is accelerating deployment in similar sectors. ADIO\'s operational value-creation model differentiates on quality deal origination vs pure capital deployment.';
+  if(/risk.adjusted|best sector/i.test(question))return 'FinTech offers best risk-adjusted return at 22.3% IRR. Technology follows at 18.4%. Logistics at 16.1% IRR remains underdeployed.';
+  if(/deployment|100%|full/i.test(question))return 'Full deployment of all sectors would deploy remaining AED 2.5B. FinTech alone has AED 320M uncommitted at 22.3% IRR.';
+  if(/recommend|strategic|q1 2025/i.test(question))return '1) Increase FinTech deployment to 100%. 2) Review Real Estate rebalancing toward Technology/Logistics. 3) Maintain pipeline discipline — 9.5% conversion exceeds benchmark.';
+  if(/summary|overview/i.test(question))return ADIO_INSIGHTS.full.map((t,i)=>`${i+1}. ${t}`).join('\n\n');
+  const ctx=getCtx()[tab]||getCtx().full;
+  return `Based on ADIO data: ${ctx.slice(0,400)}...\n\nTry asking about NAV, IRR, FinTech, pipeline, macro, or strategic recommendations.`;
+}
+
+function answerCustomQuestion(q){
+  if(!dataset.length)return 'No data loaded.';
+  const question=q.toLowerCase().trim(),inv=investCol(),sec=sectorCol(),cty=countryCol(),jobs=jobsCol(),nm=nameCol(),st=statusCol();
+  if(/how many|count|records/i.test(question))return `There are ${dataset.length} records across ${columns.length} columns.`;
+  if(/total|sum/i.test(question)&&inv){const t=dataset.reduce((s,r)=>s+num(r[inv]),0);return `Total ${inv.replace(/_/g,' ')}: AED ${fmt(t)}M.`;}
+  if(/top|best|highest/i.test(question)){const n=(question.match(/top\s*(\d+)/)||[])[1]||5;if(!inv)return 'No investment column.';return [...dataset].sort((a,b)=>num(b[inv])-num(a[inv])).slice(0,+n).map((r,i)=>`${i+1}. ${nm?r[nm]:'Record'} — AED ${fmt(num(r[inv]))}M`).join('\n');}
+  if(/summary|overview/i.test(question))return generateCustomInsights().map((t,i)=>`${i+1}. ${t}`).join('\n\n');
+  return `Ask about totals, top investments, or summary. Columns: ${columns.join(', ')}`;
+}
+
+/* ── ADIO Intelligence — floating assistant ── */
+let currentPage='portfolio',copilotTopic='portfolio',copilotMode='ask',copilotHistory=[],copilotOpen=false,copilotExpanded=false,copilotScrollY=0;
+const COPILOT_TOPICS=[
+  {id:'portfolio',label:'Portfolio'},
+  {id:'pipeline',label:'Deal pipeline'},
+  {id:'performance',label:'Performance'},
+  {id:'macro',label:'Macro'}
+];
+const COPILOT_CHIPS={
+  portfolio:['Which sector to increase allocation?','What is total NAV?'],
+  pipeline:['Where is the pipeline bottleneck?','What is our conversion rate?'],
+  performance:['Projected NAV for 2025?','How much alpha did we generate?'],
+  macro:['How does UAE GDP affect allocation?','What are regional risks?'],
+  full:['Best risk-adjusted sector?','Top 3 recommendations for Q1 2025'],
+  upload:['Summarise my data','What are the top investments?']
+};
+function copilotTabKey(topic){return topic==='full'?'full':topic==='upload'?'csv':topic==='portfolio'?'port':topic==='pipeline'?'pipe':topic==='performance'?'perf':topic;}
+function topicLabel(id){return COPILOT_TOPICS.find(t=>t.id===id)?.label||'Portfolio';}
+
+function runDeepAnalysis(topic){
+  if(topic==='upload'&&!useCustomData)return 'No uploaded data yet. Go to **Upload Data** and add a CSV or JSON file first.\n\nOr pick **Full overview** for official ADIO analysis.';
+  if(useCustomData)return generateCustomInsights().map((t,i)=>`${i+1}. ${t}`).join('\n\n');
+  const key=topic==='full'?'full':topic;
+  const insights=ADIO_INSIGHTS[key]||ADIO_INSIGHTS.full;
+  return insights.map((t,i)=>`${i+1}. ${t}`).join('\n\n');
+}
+
+function isCopilotGreeting(q){
+  const t=q.trim().toLowerCase().replace(/[!?.。,，]/g,'');
+  return /^(hi|hello|hey|hiya|good morning|good afternoon|good evening|greetings|yo|sup|what's up|whats up)$/.test(t);
+}
+function copilotGreetingReply(){
+  return "I'm **ADIO Intelligence**. How can I help you?";
+}
+
+function getCopilotAnswer(q,topic,mode){
+  if(q.trim()&&isCopilotGreeting(q))return copilotGreetingReply();
+  const tab=copilotTabKey(topic);
+  const analyse=mode==='analyse'||(!q.trim()&&mode==='analyse');
+  if(analyse&&!q.trim())return runDeepAnalysis(topic);
+  if(useCustomData&&!analyse)return answerCustomQuestion(q);
+  if(analyse){
+    if(useCustomData)return runDeepAnalysis(topic);
+    const quick=q.trim()?answerAdioQuestion(q,tab):'';
+    if(quick&&!quick.includes('Try asking about'))return quick+'\n\n'+runDeepAnalysis(topic).split('\n\n').slice(0,2).join('\n\n');
+    return runDeepAnalysis(topic);
+  }
+  return useCustomData?answerCustomQuestion(q):answerAdioQuestion(q,tab);
+}
+
+function formatMsgHtml(text){return text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');}
+
+const COPILOT_PLACEHOLDER={
+  portfolio:'e.g. What is total NAV? Which sector to grow?',
+  pipeline:'e.g. What is our conversion rate?',
+  performance:'e.g. Projected NAV for 2025?',
+  macro:'e.g. How does UAE GDP affect us?',
+  full:'e.g. Best sector? Top recommendations?',
+  upload:'e.g. Summarise my uploaded data'
+};
+
+function buildEmptyState(){
+  const chips=(COPILOT_CHIPS[copilotTopic]||[]).slice(0,2);
+  const topic=topicLabel(copilotTopic).toLowerCase();
+  const quick=chips.map(c=>`<button type="button" class="copilot-quick-btn" onclick="copilotChip('${c.replace(/'/g,"\\'")}')">${c}</button>`).join('');
+  return `<div class="copilot-welcome-simple"><h3>Hi — I'm ADIO Intelligence</h3><p>Tap a question below or type your own. I use live <strong>${topic}</strong> data.</p><div class="copilot-quick-btns">${quick}</div></div>`;
+}
+
+function paintMessages(){
+  const box=document.getElementById('copilotPanelMessages');
+  if(!box)return;
+  box.innerHTML='';
+  const clearBtn=document.getElementById('copilotClearBtn');
+  if(clearBtn)clearBtn.style.display=copilotHistory.length?'inline-block':'none';
+  if(!copilotHistory.length){box.innerHTML=buildEmptyState();renderCopilotSuggestions();return;}
+  copilotHistory.forEach(m=>{
+    const row=document.createElement('div');
+    row.className=`copilot-msg-row ${m.role}`;
+  row.innerHTML=`<span class="copilot-msg-av">${m.role==='bot'?'✦':'U'}</span><div class="chat-bubble ${m.role}">${formatMsgHtml(m.text)}</div>`;
+    box.appendChild(row);
+  });
+  box.scrollTop=box.scrollHeight;
+  renderCopilotSuggestions();
+}
+
+function renderCopilotSuggestions(){
+  const el=document.getElementById('copilotSuggestions');
+  if(!el)return;
+  const chips=(COPILOT_CHIPS[copilotTopic]||[]).slice(0,2);
+  if(!chips.length){el.innerHTML='';return;}
+  el.innerHTML=`<div class="copilot-sug-label">Try asking</div><div class="copilot-sug-chips">${chips.map(c=>`<button type="button" class="copilot-sug-chip" onclick="copilotChip('${c.replace(/'/g,"\\'")}')">${c}</button>`).join('')}</div>`;
+}
+
+function renderCopilotTopics(){
+  const el=document.getElementById('copilotTopicsPanel');
+  if(!el)return;
+  el.innerHTML=COPILOT_TOPICS.map(t=>`<button type="button" class="copilot-topic-pill${copilotTopic===t.id?' active':''}" onclick="setCopilotTopic('${t.id}')" role="tab" aria-selected="${copilotTopic===t.id}">${t.label}</button>`).join('');
+}
+
+function updateCopilotContext(){
+  const el=document.getElementById('copilotContext');
+  if(el)el.textContent='Using '+topicLabel(copilotTopic).toLowerCase()+' data';
+  const inp=document.getElementById('copilotInput');
+  if(inp)inp.placeholder=COPILOT_PLACEHOLDER[copilotTopic]||'Ask anything…';
+}
+
+function setCopilotTopic(id){
+  copilotTopic=id;
+  renderCopilotTopics();
+  updateCopilotContext();
+  if(!copilotHistory.length)paintMessages();
+  else renderCopilotSuggestions();
+}
+
+function clearCopilotChat(){
+  copilotHistory=[];
+  copilotMode='ask';
+  paintMessages();
+  document.getElementById('copilotInput')?.focus();
+}
+
+function runDeepCopilot(){
+  copilotMode='analyse';
+  sendCopilot('');
+}
+
+function showTyping(){
+  const box=document.getElementById('copilotPanelMessages');
+  if(!box||box.querySelector('.chat-typing-live'))return;
+  const t=document.createElement('div');
+  t.className='chat-typing chat-typing-live';
+  t.innerHTML='<span></span><span></span><span></span>';
+  box.appendChild(t);
+  box.scrollTop=box.scrollHeight;
+}
+function hideTyping(){document.querySelectorAll('.chat-typing-live').forEach(t=>t.remove());}
+
+function sendCopilot(prefill){
+  const input=document.getElementById('copilotInput');
+  const q=(prefill!==undefined?prefill:(input?input.value:'')).trim();
+  if(!q&&copilotMode!=='analyse')return;
+  const mode=copilotMode;
+  copilotHistory.push({role:'user',text:q||(mode==='analyse'?'Deep analysis':'')});
+  paintMessages();
+  if(input){input.value='';input.style.height='auto';}
+  const btn=document.getElementById('copilotSend');
+  if(btn)btn.disabled=true;
+  showTyping();
+  setTimeout(()=>{
+    hideTyping();
+    copilotHistory.push({role:'bot',text:getCopilotAnswer(q,copilotTopic,mode)});
+    copilotMode='ask';
+    paintMessages();
+    if(btn)btn.disabled=false;
+  },mode==='analyse'?800:400);
+}
+
+function copilotChip(text){copilotMode='ask';sendCopilot(text);}
+
+function toggleCopilotExpand(){
+  copilotExpanded=!copilotExpanded;
+  const panel=document.getElementById('copilotPanel');
+  panel?.classList.toggle('expanded',copilotExpanded);
+  const btn=document.getElementById('copilotExpandBtn');
+  if(btn){btn.textContent=copilotExpanded?'⛶':'⛶';btn.title=copilotExpanded?'Compact view':'Full view';}
+}
+
+function openCopilot(){
+  const topic=['portfolio','pipeline','performance','macro'].includes(currentPage)?currentPage:'portfolio';
+  setCopilotTopic(topic);
+  copilotOpen=true;
+  copilotScrollY=window.scrollY;
+  document.getElementById('copilotPanel')?.classList.add('open');
+  document.getElementById('copilotOverlay')?.classList.add('open');
+  document.body.style.position='fixed';
+  document.body.style.top=`-${copilotScrollY}px`;
+  document.body.style.width='100%';
+  document.body.style.overflow='hidden';
+  paintMessages();
+  document.getElementById('copilotInput')?.focus();
+}
+
+function closeCopilot(){
+  copilotOpen=false;
+  copilotExpanded=false;
+  document.getElementById('copilotPanel')?.classList.remove('open','expanded');
+  document.getElementById('copilotOverlay')?.classList.remove('open');
+  document.body.style.position='';
+  document.body.style.top='';
+  document.body.style.width='';
+  document.body.style.overflow='';
+  window.scrollTo(0,copilotScrollY);
+}
+
+function initCopilotPanel(){
+  renderCopilotTopics();
+  updateCopilotContext();
+  renderCopilotSuggestions();
+  const inp=document.getElementById('copilotInput');
+  if(inp&&!inp.dataset.bound){
+    inp.dataset.bound='1';
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();copilotMode='ask';sendCopilot();}});
+    inp.addEventListener('input',()=>{inp.style.height='auto';inp.style.height=Math.min(inp.scrollHeight,100)+'px';});
+  }
+}
+
+function go(id,btn){
+  PAGES.forEach(p=>document.getElementById('page-'+p).classList.toggle('active',p===id));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const m=document.getElementById('mobileNav');if(m)m.value=id;
+  const meta=PAGE_META[id];if(meta){document.getElementById('hdr-section').textContent='NextGen Group - '+meta.section;document.getElementById('hdr-title').textContent=meta.title;}
+  currentPage=id;
+  if(copilotOpen&&['portfolio','pipeline','performance','macro'].includes(id))setCopilotTopic(id);
+}
+
+function doFile(file){
+  if(!file)return;
+  document.getElementById('thk').style.display='block';document.getElementById('cso').style.display='none';
+  const ext=file.name.split('.').pop().toLowerCase();
+  const navBtn=document.querySelector('[data-page="portfolio"]');
+  if(ext==='json'){const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);setDataset(Array.isArray(d)?d:(d.records||d.data||[d]),'upload',file.name);go('portfolio',navBtn);}catch(err){alert('Invalid JSON');document.getElementById('thk').style.display='none';}};r.readAsText(file);}
+  else Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>{setDataset(r.data,'upload',file.name);go('portfolio',navBtn);}});
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('sidebarToggle').addEventListener('click',()=>document.getElementById('sidebar').classList.toggle('collapsed'));
+  initCopilotPanel();
+  initDashboardTooltips();
+  const dz=document.getElementById('dz');
+  dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+  dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+  dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');doFile(e.dataTransfer.files[0]);});
+  const saved=localStorage.getItem('adio_data');
+  const source=localStorage.getItem('adio_source');
+  if(saved&&source==='upload'){try{useCustomData=true;dataset=JSON.parse(saved);analyze();refreshAll();}catch(e){loadAdioOfficial();}}
+  else loadAdioOfficial();
+});
+</script>
+</body>
+</html>
