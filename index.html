@@ -328,6 +328,45 @@ html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-display);fon
 
 .ask-ta,.ans-box{display:none!important}
 .reset-data-btn{padding:12px 28px;background:var(--navy);border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:600;letter-spacing:.08em;cursor:pointer;font-family:inherit}
+.upload-status-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow-card)}
+.upload-status-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.upload-status-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.upload-status-badge.official{background:rgba(31,107,84,.12);color:#1F6B54}
+.upload-status-badge.custom{background:rgba(165,119,53,.14);color:#8a652d}
+.upload-status-badge i{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+.upload-status-title{font-size:20px;font-weight:800;color:var(--navy);margin:12px 0 6px}
+.upload-status-meta{font-size:14px;font-weight:500;color:var(--gray);line-height:1.5}
+.upload-actions-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.upload-btn{padding:12px 20px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:all .2s}
+.upload-btn-primary{background:var(--gold);color:#fff}
+.upload-btn-primary:hover{background:#8a652d}
+.upload-btn-outline{background:#fff;color:var(--navy);border:1px solid rgba(0,0,0,.12)}
+.upload-btn-outline:hover{border-color:var(--gold);background:var(--gold-light)}
+.upload-btn-danger{background:rgba(180,50,50,.08);color:#b43232;border:1px solid rgba(180,50,50,.2)}
+.upload-btn-danger:hover{background:rgba(180,50,50,.14)}
+.upload-history-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:var(--shadow-card)}
+.upload-history-title{font-size:18px;font-weight:800;color:var(--navy);margin:0 0 4px}
+.upload-history-sub{font-size:13px;font-weight:500;color:var(--gray);margin:0 0 14px}
+.upload-history-list{display:flex;flex-direction:column;gap:8px}
+.upload-history-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border-radius:12px;border:1px solid rgba(0,0,0,.06);background:var(--surface);transition:all .15s}
+.upload-history-item.active{border-color:var(--gold);background:var(--gold-light)}
+.upload-history-item:hover{border-color:rgba(165,119,53,.35)}
+.upload-history-main{min-width:0;flex:1}
+.upload-history-name{font-size:15px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upload-history-detail{font-size:12px;font-weight:500;color:var(--gray);margin-top:4px}
+.upload-history-actions{display:flex;gap:6px;flex-shrink:0}
+.upload-history-btn{padding:8px 12px;border-radius:8px;border:1px solid rgba(0,0,0,.1);background:#fff;font-size:12px;font-weight:700;color:var(--navy);cursor:pointer;font-family:inherit}
+.upload-history-btn:hover{border-color:var(--gold);background:var(--gold-light)}
+.upload-history-btn.danger{color:#b43232;border-color:rgba(180,50,50,.25)}
+.upload-history-empty{text-align:center;padding:24px 16px;color:var(--gray);font-size:14px;font-weight:500;border:1px dashed rgba(0,0,0,.1);border-radius:12px}
+.data-source-banner{display:none;padding:10px 16px;background:linear-gradient(90deg,rgba(165,119,53,.12),rgba(165,119,53,.06));border-bottom:1px solid rgba(165,119,53,.2);font-size:13px;font-weight:600;color:#8a652d;text-align:center}
+.data-source-banner.visible{display:block}
+.data-source-banner button{margin-left:10px;padding:4px 10px;border-radius:999px;border:1px solid rgba(165,119,53,.35);background:#fff;color:#8a652d;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit}
+.upload-toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-12px);z-index:300;padding:12px 18px;border-radius:12px;background:var(--navy);color:#fff;font-size:14px;font-weight:600;box-shadow:0 12px 40px rgba(18,28,38,.25);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:min(420px,calc(100vw - 32px));text-align:center}
+.upload-toast.visible{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.upload-toast.error{background:#b43232}
+.upload-chart-fallback{padding:32px 16px;text-align:center;font-size:14px;font-weight:500;color:var(--gray);line-height:1.5}
+.csv-out{display:none}
 
 .drop-zone{background:#fff;border:2px dashed rgba(0,0,0,.1);border-radius:14px;padding:56px 24px;text-align:center;cursor:pointer;margin-bottom:16px;box-shadow:var(--shadow-card);transition:all .2s}
 .drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:var(--gold-light)}
@@ -335,7 +374,6 @@ html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-display);fon
 .dz-title{font-size:22px;font-weight:700;margin-bottom:4px}
 .dz-sub{font-size:16px;font-weight:500;color:var(--gray)}
 .thinking{text-align:center;padding:36px;font-size:13px;font-weight:600;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;display:none}
-.csv-out{display:none}
 
 .lux-table-wrap{border:1px solid rgba(0,0,0,.05);background:var(--surface);border-radius:14px;overflow:auto;max-height:420px}
 .lux-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;font-weight:500}
@@ -415,7 +453,11 @@ html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-display);fon
   .dz-sub{font-size:14px}
   .site-footer{padding:16px;font-size:12px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
   .lux-table-wrap{max-height:320px}
-  .dash-tooltip{max-width:min(260px,calc(100vw - 32px))}
+  .upload-history-item{flex-wrap:wrap}
+  .upload-history-actions{width:100%;justify-content:flex-end}
+  .upload-actions-row .upload-btn{flex:1 1 auto;min-width:140px;justify-content:center;display:inline-flex;align-items:center}
+  .data-source-banner{padding:10px 12px;font-size:12px;line-height:1.5}
+  .data-source-banner button{display:inline-block;margin:8px 0 0}
 }
 @media(min-width:768px) and (max-width:1023px){
   .grid-2{grid-template-columns:3fr 2fr}
@@ -500,13 +542,18 @@ html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-display);fon
       </select>
     </div>
 
+    <div class="data-source-banner" id="dataSourceBanner">
+      Viewing uploaded data · <span id="bannerFileName">custom file</span>
+      <button type="button" onclick="confirmResetData()">Reset to official ADIO data</button>
+    </div>
+
     <main class="main-content">
       <!-- PORTFOLIO -->
       <div class="page active" id="page-portfolio">
         <header class="page-header">
           <p class="section-eyebrow">Executive</p>
           <h1>Portfolio Overview</h1>
-          <p class="meta">Capital deployment · sector allocation · live from uploaded data</p>
+          <p class="meta" id="portfolio-meta">Capital deployment · sector allocation · live from uploaded data</p>
         </header>
         <div class="kpi-grid" id="krow-portfolio"></div>
         <div class="grid-2">
@@ -613,26 +660,44 @@ html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-display);fon
           <h1>Upload Data</h1>
           <p class="meta">CSV or JSON · updates all dashboards instantly</p>
         </header>
-        <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()">
+
+        <div class="upload-status-card" id="uploadStatusCard">
+          <div class="upload-status-head">
+            <span class="upload-status-badge official" id="uploadStatusBadge"><i></i> Official ADIO data</span>
+          </div>
+          <div class="upload-status-title" id="uploadStatusTitle">Using official Q4 2024 dashboard figures</div>
+          <div class="upload-status-meta" id="uploadStatusMeta">Upload a CSV or JSON file to replace portfolio, pipeline, performance, and macro views with your own data.</div>
+          <div class="upload-actions-row" id="uploadActionsRow">
+            <button type="button" class="upload-btn upload-btn-primary" onclick="document.getElementById('fi').click()">Choose file</button>
+            <button type="button" class="upload-btn upload-btn-outline" id="viewDashboardBtn" style="display:none" onclick="go('portfolio',document.querySelector('[data-page=portfolio]'))">View updated dashboard</button>
+            <button type="button" class="upload-btn upload-btn-danger" id="resetDataBtn" style="display:none" onclick="confirmResetData()">Reset to official data</button>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="dz">
           <div class="dz-icon">↑</div>
-          <div class="dz-title">Drop a CSV or JSON file to update all dashboards</div>
-          <div class="dz-sub">Processed locally — charts, KPIs, and copilot refresh instantly</div>
+          <div class="dz-title">Drop a CSV or JSON file here</div>
+          <div class="dz-sub">Charts, KPIs, insights, and ADIO Intelligence update instantly · processed locally in your browser</div>
           <input type="file" id="fi" accept=".csv,.json,.txt" style="display:none" onchange="doFile(this.files[0])">
         </div>
-        <div style="text-align:center;margin-bottom:20px">
-          <button class="reset-data-btn" onclick="loadAdioOfficial()">RESET TO ADIO DATA</button>
+
+        <div class="upload-history-card">
+          <h3 class="upload-history-title">Upload history</h3>
+          <p class="upload-history-sub">Recent files stored locally in this browser — restore or remove anytime</p>
+          <div class="upload-history-list" id="uploadHistoryList"></div>
         </div>
-        <div class="thinking" id="thk">PROCESSING YOUR DATA...</div>
+
+        <div class="thinking" id="thk">Processing your data…</div>
         <div class="csv-out" id="cso">
           <div class="grid-2-eq">
             <div class="insight-panel" style="margin-bottom:0">
               <p class="insight-eyebrow">Analysis</p>
-              <h3 class="insight-title">Copilot Insights</h3>
+              <h3 class="insight-title">Upload insights</h3>
               <div id="csvIns" style="font-size:14px;font-weight:300;color:rgba(255,255,255,.75);line-height:1.7;white-space:pre-wrap;position:relative"></div>
             </div>
             <div class="apple-card widget-card">
               <div class="widget-head">
-                <div><div class="widget-title" id="csvLbl">Data Preview</div><div class="widget-sub">Uploaded rows</div></div>
+                <div><div class="widget-title" id="csvLbl">Data preview</div><div class="widget-sub" id="csvSub">Uploaded rows</div></div>
               </div>
               <div class="lux-table-wrap"><table class="lux-table" id="csvTbl"></table></div>
             </div>
@@ -645,6 +710,7 @@ html,body{margin:0;padding:0;min-height:100%;font-family:var(--font-display);fon
   </div>
 </div>
 
+<div class="upload-toast" id="uploadToast" role="status" aria-live="polite"></div>
 <div class="copilot-overlay" id="copilotOverlay" onclick="closeCopilot()"></div>
 <aside class="copilot-panel" id="copilotPanel" aria-label="ADIO Intelligence">
   <div class="copilot-panel-header">
@@ -793,32 +859,157 @@ function kpiCard(k,i){
 function kpiHtml(items){return items.map((k,i)=>kpiCard(k,i)).join('')}
 function insHtml(list){return list.map((t,i)=>`<li><span class="insight-badge">${i+1}</span>${t}</li>`).join('')}
 
-function loadAdioOfficial(){
+function loadAdioOfficial(silent){
   useCustomData=false;dataset=[];built={};csvCtx='';
-  localStorage.removeItem('adio_data');localStorage.removeItem('adio_source');localStorage.removeItem('adio_filename');
+  localStorage.removeItem('adio_data');localStorage.removeItem('adio_source');localStorage.removeItem('adio_filename');localStorage.removeItem('adio_upload_active_id');
   document.getElementById('liveLabel').textContent='LIVE — Q4 2024';
   const up=document.getElementById('up-tab');if(up)up.querySelector('.nav-label').textContent='Upload Data';
   document.getElementById('cso').style.display='none';
+  document.getElementById('thk').style.display='none';
+  const fi=document.getElementById('fi');if(fi)fi.value='';
   refreshAll();
+  updateDataSourceUI();
+  if(!silent)showUploadToast('Restored official ADIO Q4 2024 data');
 }
 
-function setDataset(data,source,filename){
+const UPLOAD_HISTORY_KEY='adio_upload_history';
+const UPLOAD_HISTORY_MAX=8;
+
+function getUploadHistory(){try{return JSON.parse(localStorage.getItem(UPLOAD_HISTORY_KEY)||'[]');}catch(e){return[];}}
+function saveUploadHistory(list){localStorage.setItem(UPLOAD_HISTORY_KEY,JSON.stringify(list));}
+
+function addUploadHistory(filename,data){
+  const history=getUploadHistory();
+  const id=Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+  const snapshot=data.length>500?data.slice(0,500):data;
+  history.unshift({id,filename,rows:data.length,storedRows:snapshot.length,columns:Object.keys(data[0]||{}),uploadedAt:new Date().toISOString(),data:snapshot});
+  while(history.length>UPLOAD_HISTORY_MAX)history.pop();
+  saveUploadHistory(history);
+  localStorage.setItem('adio_upload_active_id',id);
+  return id;
+}
+
+function formatUploadDate(iso){try{return new Date(iso).toLocaleString(undefined,{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'});}catch(e){return iso;}}
+
+function showUploadToast(msg,isError){
+  const t=document.getElementById('uploadToast');if(!t)return;
+  t.textContent=msg;t.classList.toggle('error',!!isError);t.classList.add('visible');
+  clearTimeout(showUploadToast._t);
+  showUploadToast._t=setTimeout(()=>t.classList.remove('visible','error'),3200);
+}
+
+function confirmResetData(){
+  if(!useCustomData){showUploadToast('Already showing official ADIO data');return;}
+  if(confirm('Reset to official ADIO data? Your upload history will be kept but dashboards will show Q4 2024 figures.'))loadAdioOfficial();
+}
+
+function finishUploadUI(filename){
+  renderUploadPreview();
+  document.getElementById('csvIns').textContent=generateCustomInsights().map((t,i)=>`${i+1}. ${t}`).join('\n\n');
+  document.getElementById('thk').style.display='none';
+  document.getElementById('cso').style.display='block';
+  const sub=document.getElementById('csvSub');
+  if(sub)sub.textContent=`${columns.length} columns · first 15 rows shown`;
+  updateDataSourceUI();
+}
+
+function updateDataSourceUI(){
+  const custom=useCustomData;
+  const fn=localStorage.getItem('adio_filename')||'Uploaded file';
+  const banner=document.getElementById('dataSourceBanner');
+  const bannerFn=document.getElementById('bannerFileName');
+  if(banner)banner.classList.toggle('visible',custom);
+  if(bannerFn)bannerFn.textContent=fn;
+  const badge=document.getElementById('uploadStatusBadge');
+  if(badge){
+    badge.className='upload-status-badge '+(custom?'custom':'official');
+    badge.innerHTML=custom?'<i></i> Custom upload active':'<i></i> Official ADIO data';
+  }
+  const title=document.getElementById('uploadStatusTitle');
+  const meta=document.getElementById('uploadStatusMeta');
+  if(title)title.textContent=custom?fn:'Using official Q4 2024 dashboard figures';
+  if(meta){
+    meta.textContent=custom
+      ? `${dataset.length} rows loaded · ${columns.length} columns · all dashboard pages updated`
+      : 'Upload a CSV or JSON file to replace portfolio, pipeline, performance, and macro views with your own data.';
+  }
+  const resetBtn=document.getElementById('resetDataBtn');
+  const viewBtn=document.getElementById('viewDashboardBtn');
+  if(resetBtn)resetBtn.style.display=custom?'inline-flex':'none';
+  if(viewBtn)viewBtn.style.display=custom?'inline-flex':'none';
+  const pmeta=document.getElementById('portfolio-meta');
+  if(pmeta)pmeta.textContent=custom?`Live from your upload · ${fn} · ${dataset.length} records`:'Capital deployment · sector allocation · official ADIO Q4 2024 data';
+  const up=document.getElementById('up-tab');
+  if(up)up.querySelector('.nav-label').textContent=custom?'Upload ✓':'Upload Data';
+  if(custom){
+    document.getElementById('liveLabel').textContent=fn.slice(0,20)+(fn.length>20?'…':'');
+    setVitalLabel('v-nav','Total value');
+    setVitalLabel('v-irr','Records');
+    setVitalLabel('v-alpha','Sectors');
+    setVitalLabel('v-companies','Markets');
+  }else{
+    setVitalLabel('v-nav','Total NAV');
+    setVitalLabel('v-irr','Portfolio IRR');
+    setVitalLabel('v-alpha','Alpha vs Benchmark');
+    setVitalLabel('v-companies','Active Companies');
+  }
+  renderUploadHistoryList();
+}
+
+function setVitalLabel(id,text){
+  const el=document.getElementById(id)?.closest('.hv')?.querySelector('.hv-k');
+  if(el)el.textContent=text;
+}
+
+function renderUploadHistoryList(){
+  const box=document.getElementById('uploadHistoryList');if(!box)return;
+  const history=getUploadHistory();
+  const activeId=localStorage.getItem('adio_upload_active_id');
+  if(!history.length){box.innerHTML='<div class="upload-history-empty">No uploads yet — drop a CSV or JSON file above to get started</div>';return;}
+  box.innerHTML=history.map(h=>`<div class="upload-history-item${h.id===activeId&&useCustomData?' active':''}">
+    <div class="upload-history-main">
+      <div class="upload-history-name">${escTip(h.filename)}</div>
+      <div class="upload-history-detail">${h.rows} rows · ${(h.columns||[]).length} columns · ${formatUploadDate(h.uploadedAt)}${h.storedRows<h.rows?' · preview capped at '+h.storedRows+' rows':''}</div>
+    </div>
+    <div class="upload-history-actions">
+      <button type="button" class="upload-history-btn" onclick="restoreUploadHistory('${h.id}')">Restore</button>
+      <button type="button" class="upload-history-btn danger" onclick="removeUploadHistory('${h.id}')">Remove</button>
+    </div>
+  </div>`).join('');
+}
+
+function restoreUploadHistory(id){
+  const item=getUploadHistory().find(h=>h.id===id);
+  if(!item||!item.data?.length){showUploadToast('Upload snapshot not found','error');return;}
+  setDataset(item.data,'upload',item.filename,id);
+  go('portfolio',document.querySelector('[data-page=portfolio]'));
+}
+
+function removeUploadHistory(id){
+  const history=getUploadHistory().filter(h=>h.id!==id);
+  saveUploadHistory(history);
+  if(localStorage.getItem('adio_upload_active_id')===id)localStorage.removeItem('adio_upload_active_id');
+  renderUploadHistoryList();
+  showUploadToast('Removed from upload history');
+}
+
+function setDataset(data,source,filename,historyId){
+  const cleaned=(Array.isArray(data)?data:[]).filter(r=>r&&typeof r==='object'&&Object.values(r).some(v=>v!==''&&v!=null));
+  if(!cleaned.length){showUploadToast('No valid rows found in file','error');document.getElementById('thk').style.display='none';return;}
   useCustomData=true;
-  dataset=data.filter(r=>Object.values(r).some(v=>v!==''&&v!=null));
+  dataset=cleaned;
   analyze();
   localStorage.setItem('adio_data',JSON.stringify(dataset));
   localStorage.setItem('adio_source',source);
   if(filename)localStorage.setItem('adio_filename',filename);
+  if(!historyId&&source==='upload')addUploadHistory(filename||'upload.csv',dataset);
+  else if(historyId)localStorage.setItem('adio_upload_active_id',historyId);
   csvCtx=`Uploaded data (${dataset.length} rows). Columns: ${columns.join(', ')}. Sample: ${JSON.stringify(dataset.slice(0,8))}`;
   built={};refreshAll();
   if(source==='upload'){
-    const up=document.getElementById('up-tab');if(up)up.querySelector('.nav-label').textContent='Upload ✓';
-    document.getElementById('liveLabel').textContent=(filename||'Uploaded').slice(0,18);
-    renderUploadPreview();
-    document.getElementById('csvIns').textContent=generateCustomInsights().map((t,i)=>`${i+1}. ${t}`).join('\n\n');
-    document.getElementById('thk').style.display='none';
-    document.getElementById('cso').style.display='block';
-  }
+    finishUploadUI(filename);
+    showUploadToast(`Dashboard updated · ${dataset.length} rows from ${filename||'file'}`);
+  }else updateDataSourceUI();
 }
 
 function refreshAll(){
@@ -1194,16 +1385,36 @@ function bPerfAdio(){
   renderIrrAlpha('irrAlpha',PERF);
 }
 
+function chartFallback(id,msg){
+  const el=document.getElementById(id);
+  if(el)el.innerHTML=`<div class="upload-chart-fallback">${msg}</div>`;
+}
+
 function bPortCustom(){
-  const sec=sectorCol(),inv=investCol();if(!sec||!inv)return;
+  let sec=sectorCol(),inv=investCol();
+  if(!sec)sec=categoricalCols[0];
+  if(!inv)inv=numericCols[0];
+  if(!sec||!inv){
+    chartFallback('irrBars','Add sector/category and investment columns to your CSV to populate this chart.');
+    destroyCharts();
+    const c1=document.getElementById('c1');
+    if(c1&&c1.getContext){const ctx=c1.getContext('2d');ctx.clearRect(0,0,c1.width,c1.height);}
+    return;
+  }
   const g=groupSum(sec,inv);const labels=Object.keys(g);const vals=labels.map(l=>g[l]);
   renderIrrVisual('irrBars',labels.map(l=>({s:l,irr:g[l]})),{max:Math.max(...vals,1)*1.1,suffix:'',formatVal:v=>`AED ${fmt(v)}M`});
   buildAllocationChart(labels,vals,null);
 }
 
 function bPipeCustom(){
-  const sec=sectorCol()||statusCol()||countryCol(),st=statusCol(),inv=investCol();if(!sec)return;
-  const g=groupSum(sec,inv||columns[0]);const labels=Object.keys(g);const total=dataset.length;
+  let sec=sectorCol()||statusCol()||countryCol(),st=statusCol(),inv=investCol();
+  if(!sec)sec=categoricalCols[0];
+  if(!sec){
+    chartFallback('pipeFlow','Add a status, sector, or category column to visualize pipeline flow.');
+    chartFallback('convFunnel','Add a status column to build the conversion funnel.');
+    return;
+  }
+  const g=groupSum(sec,inv||numericCols[0]||columns[0]);const labels=Object.keys(g);const total=dataset.length;
   const funnel=st?(()=>{const sg={};dataset.forEach(r=>{const k=String(r[st]||'Unknown');sg[k]=(sg[k]||0)+1;});return Object.entries(sg).sort((a,b)=>b[1]-a[1]);})():labels.map(l=>[l,g[l]]);
   const colors=['#1A3E6E','#2D7A9E','#C4922A','#1F6B54'];
   const topCount=funnel[0]?.[1]||total;
@@ -1216,19 +1427,22 @@ function bPipeCustom(){
 
 function bPerfCustom(){
   const yr=yearCol(),inv=investCol(),jobs=jobsCol();
+  if(!yr){
+    chartFallback('navGrowth','Add a year, date, or period column to show performance trends.');
+    chartFallback('irrAlpha','Add a year column and numeric values to compare trends.');
+    return;
+  }
   if(yr&&inv){
     const g=groupSum(yr,inv);const labels=Object.keys(g).sort();
-    const navPts=labels.map(l=>({q:l,nav:g[l]}));
-    renderNavGrowth('navGrowth',navPts);
-  }
+    renderNavGrowth('navGrowth',labels.map(l=>({q:l,nav:g[l]})));
+  }else chartFallback('navGrowth','Add an investment or value column for NAV-style trends.');
   if(yr&&jobs){
     const g=groupSum(yr,jobs);const labels=Object.keys(g).sort();const vals=labels.map(l=>g[l]);
-    const irrPts=labels.map((l,i)=>({q:l,irr:vals[i]}));
-    renderIrrAlpha('irrAlpha',irrPts);
+    renderIrrAlpha('irrAlpha',labels.map((l,i)=>({q:l,irr:vals[i]})));
   }else if(yr&&inv){
     const g=groupSum(yr,inv);const labels=Object.keys(g).sort();const vals=labels.map(l=>g[l]);
     renderIrrAlpha('irrAlpha',labels.map((l,i)=>({q:l,irr:vals[i]})));
-  }
+  }else chartFallback('irrAlpha','Add jobs or investment columns for trend comparison.');
 }
 
 function renderUploadPreview(){
@@ -1501,11 +1715,38 @@ function go(id,btn){
 
 function doFile(file){
   if(!file)return;
-  document.getElementById('thk').style.display='block';document.getElementById('cso').style.display='none';
   const ext=file.name.split('.').pop().toLowerCase();
-  const navBtn=document.querySelector('[data-page="portfolio"]');
-  if(ext==='json'){const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);setDataset(Array.isArray(d)?d:(d.records||d.data||[d]),'upload',file.name);go('portfolio',navBtn);}catch(err){alert('Invalid JSON');document.getElementById('thk').style.display='none';}};r.readAsText(file);}
-  else Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>{setDataset(r.data,'upload',file.name);go('portfolio',navBtn);}});
+  if(!['csv','json','txt'].includes(ext)){showUploadToast('Please upload a CSV or JSON file','error');return;}
+  document.getElementById('thk').style.display='block';
+  document.getElementById('cso').style.display='none';
+  const done=(ok)=>{
+    document.getElementById('thk').style.display='none';
+    const fi=document.getElementById('fi');if(fi)fi.value='';
+    if(!ok)return;
+  };
+  if(ext==='json'){
+    const r=new FileReader();
+    r.onload=e=>{
+      try{
+        const d=JSON.parse(e.target.result);
+        const rows=Array.isArray(d)?d:(d.records||d.data||[d]);
+        setDataset(rows,'upload',file.name);
+        done(true);
+      }catch(err){showUploadToast('Invalid JSON file','error');done(false);}
+    };
+    r.onerror=()=>{showUploadToast('Could not read file','error');done(false);};
+    r.readAsText(file);
+  }else{
+    Papa.parse(file,{
+      header:true,skipEmptyLines:true,
+      complete:r=>{
+        if(r.errors?.length&&!r.data?.length){showUploadToast('CSV parse error — check file format','error');done(false);return;}
+        setDataset(r.data||[],'upload',file.name);
+        done(true);
+      },
+      error:()=>{showUploadToast('Could not parse CSV','error');done(false);}
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -1513,13 +1754,24 @@ document.addEventListener('DOMContentLoaded',()=>{
   initCopilotPanel();
   initDashboardTooltips();
   const dz=document.getElementById('dz');
+  const fi=document.getElementById('fi');
+  dz.addEventListener('click',e=>{if(e.target===dz||e.target.closest('.dz-icon,.dz-title,.dz-sub'))fi.click();});
   dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
   dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
   dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');doFile(e.dataTransfer.files[0]);});
   const saved=localStorage.getItem('adio_data');
   const source=localStorage.getItem('adio_source');
-  if(saved&&source==='upload'){try{useCustomData=true;dataset=JSON.parse(saved);analyze();refreshAll();}catch(e){loadAdioOfficial();}}
-  else loadAdioOfficial();
+  if(saved&&source==='upload'){
+    try{
+      useCustomData=true;
+      dataset=JSON.parse(saved);
+      analyze();
+      csvCtx=`Uploaded data (${dataset.length} rows). Columns: ${columns.join(', ')}. Sample: ${JSON.stringify(dataset.slice(0,8))}`;
+      refreshAll();
+      finishUploadUI(localStorage.getItem('adio_filename')||'Saved upload');
+    }catch(e){loadAdioOfficial(true);}
+  }else loadAdioOfficial(true);
+  updateDataSourceUI();
 });
 </script>
 </body>
