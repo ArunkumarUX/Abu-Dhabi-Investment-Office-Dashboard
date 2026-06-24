@@ -857,6 +857,7 @@ body.screen-loading-open{overflow:hidden}
 .radar-brief-card ul{margin:0;padding-left:18px;font-size:14px;line-height:1.55;color:var(--text)}
 .radar-brief-card li{margin-bottom:8px}
 .radar-brief-card li:last-child{margin-bottom:0}
+.radar-brief-notice{margin-bottom:14px;padding:12px 14px;border-radius:10px;background:rgba(196,146,42,.12);border:1px solid rgba(196,146,42,.25);font-size:13px;font-weight:600;color:#8a652d;line-height:1.45}
 .radar-brief-raw{background:#f8f9fa;border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:16px;font-size:13px;white-space:pre-wrap;overflow:auto;max-height:400px;font-family:ui-monospace,monospace}
 .radar-pitch-simple{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
 .pitch-how-it-works{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-radius:14px;background:var(--gold-light);border:1px solid rgba(165,119,53,.18)}
@@ -3913,7 +3914,7 @@ function updatePitchUI(){
   const statusText=document.getElementById('pitchStatusText');
   const signal=currentLeadContext?.signal;
   const brief=currentLeadBrief;
-  const hasBrief=brief&&!brief._raw;
+  const hasBrief=brief&&!brief._mock;
   const companyMatch=company&&(signal?.company?.toLowerCase()===company.toLowerCase()||brief?.company?.toLowerCase()===company.toLowerCase());
 
   if(btn)btn.disabled=!company;
@@ -4032,7 +4033,7 @@ Company or Lead: ${ctx}
 
 ADIO Context: Abu Dhabi Investment Office (investwithabudhabi.com) helps global investors establish, grow and develop in Abu Dhabi. Priority industries: Logistics, Agriculture, Life Sciences, Energy, Finance, Digital & Technology. Official impact: USD ${ADIO_OFFICIAL.impact.gdpCommitmentsUsd} cluster GDP commitments; ${ADIO_OFFICIAL.impact.musatahaContracts} Musataha contracts (USD ${ADIO_OFFICIAL.impact.musatahaInvestmentUsd}); AED ${ADIO_OFFICIAL.impact.pppFacilitatedAed} PPP facilitated; +${ADIO_OFFICIAL.impact.nonOilExportGrowth} non-oil export growth (2023–2024).
 
-Generate the brief in the following JSON structure only, no preamble:
+Generate the brief as a single valid JSON object only — no markdown, no code fences, no preamble. Keep each bullet concise. Complete the full JSON object including all closing brackets.
 {
   "company": "[name]",
   "overview": "[2-3 sentences on who they are and current priorities]",
@@ -4044,12 +4045,68 @@ Generate the brief in the following JSON structure only, no preamble:
 }`;
 }
 
+function cleanJsonText(text){
+  return String(text||'').replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+}
+
+function normalizeBrief(obj){
+  if(!obj||typeof obj!=='object')return null;
+  const arr=v=>Array.isArray(v)?v.filter(Boolean):typeof v==='string'&&v?[v]:[];
+  const str=v=>String(v??'').trim();
+  const brief={
+    company:str(obj.company),
+    overview:str(obj.overview),
+    why_abu_dhabi:arr(obj.why_abu_dhabi),
+    adio_value_prop:str(obj.adio_value_prop),
+    approach_strategy:arr(obj.approach_strategy),
+    risk_flags:arr(obj.risk_flags),
+    comparable_deals:arr(obj.comparable_deals)
+  };
+  return brief.company||brief.overview?brief:null;
+}
+
+function repairTruncatedBriefJson(text){
+  let body=cleanJsonText(text);
+  const start=body.indexOf('{');
+  if(start<0)return null;
+  body=body.slice(start);
+  try{return JSON.parse(body);}catch(e){}
+  let inString=false,escape=false;
+  const stack=[];
+  for(let i=0;i<body.length;i++){
+    const c=body[i];
+    if(inString){
+      if(escape)escape=false;
+      else if(c==='\\')escape=true;
+      else if(c==='"')inString=false;
+      continue;
+    }
+    if(c==='"')inString=true;
+    else if(c==='{'||c==='[')stack.push(c);
+    else if(c==='}'){if(stack[stack.length-1]==='{')stack.pop();}
+    else if(c===']'){if(stack[stack.length-1]==='[')stack.pop();}
+  }
+  let suffix='';
+  if(inString)suffix+='"';
+  while(stack.length){
+    const open=stack.pop();
+    suffix+=open==='{'?'}':']';
+  }
+  try{return JSON.parse(body+suffix);}catch(e){return null;}
+}
+
 function parseLeadJson(text){
-  try{
-    const s=text.indexOf('{'),e=text.lastIndexOf('}');
-    if(s<0||e<=s)throw new Error('no json');
-    return{parsed:JSON.parse(text.slice(s,e+1)),raw:null};
-  }catch(e){return{parsed:null,raw:text};}
+  const cleaned=cleanJsonText(text);
+  const s=cleaned.indexOf('{'),e=cleaned.lastIndexOf('}');
+  if(s>=0&&e>s){
+    try{
+      const parsed=normalizeBrief(JSON.parse(cleaned.slice(s,e+1)));
+      if(parsed)return{parsed,raw:null,truncated:false};
+    }catch(err){}
+  }
+  const repaired=normalizeBrief(repairTruncatedBriefJson(text));
+  if(repaired)return{parsed:repaired,raw:null,truncated:true};
+  return{parsed:null,raw:cleaned};
 }
 
 async function callClaudeLead(system,user,maxTokens,endpoint){
@@ -4084,25 +4141,31 @@ function generateMockBrief(input,signal){
 
 async function fetchLeadBrief(input,signal){
   const user=buildBriefUserPrompt(input,signal);
-  const text=await callClaudeLead(BRIEF_SYSTEM,user,1000,'/.netlify/functions/claude-lead-brief');
+  const text=await callClaudeLead(BRIEF_SYSTEM,user,2000,'/.netlify/functions/claude-lead-brief');
   if(text){
-    const{parsed,raw}=parseLeadJson(text);
-    if(parsed)return parsed;
-    if(raw)return{_raw:raw};
+    const{parsed,raw,truncated}=parseLeadJson(text);
+    if(parsed){
+      if(truncated)parsed._truncated=true;
+      return parsed;
+    }
+    if(signal&&MOCK_BRIEFS[signal.id]){
+      const mock=JSON.parse(JSON.stringify(MOCK_BRIEFS[signal.id]));
+      mock._mock=true;
+      showUploadToast('Brief response incomplete — showing saved intelligence for '+signal.company);
+      return mock;
+    }
   }
   const mock=generateMockBrief(input,signal);
   mock._mock=true;
+  if(text)showUploadToast('Could not format AI brief — showing structured fallback');
   return mock;
 }
 
 function renderLeadBrief(brief){
   const wrap=document.getElementById('radarBriefWrap');
   if(!wrap)return;
-  if(brief._raw){
-    wrap.innerHTML=`<div class="radar-brief-card full-width"><h4>Intelligence Brief</h4><pre class="radar-brief-raw">${esc(brief._raw)}</pre></div>`;
-    return;
-  }
-  wrap.innerHTML=`
+  const notice=brief._truncated?'<div class="radar-brief-notice">Part of this brief was trimmed by the AI response limit. Content below is recovered — regenerate for a fuller version.</div>':brief._mock?'<div class="radar-brief-notice">Demo brief — connect API key or Netlify function for live intelligence.</div>':'';
+  wrap.innerHTML=notice+`
     <div class="radar-brief-hero">
       <h3>${esc(brief.company||'Intelligence brief')}</h3>
       <p>${esc(brief.overview)}</p>
