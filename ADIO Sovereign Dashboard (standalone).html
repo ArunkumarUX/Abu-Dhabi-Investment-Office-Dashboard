@@ -1050,7 +1050,7 @@ body.screen-loading-open{overflow:hidden}
       </button>
     </nav>
     <div class="sidebar-foot">
-      <div class="live-pill"><span class="live-dot"></span><span id="liveLabel">OFFICIAL — ADIO</span></div>
+      <div class="live-pill"><span class="live-dot"></span><span id="liveLabel">LIVE — Q4 2024</span></div>
     </div>
   </aside>
 
@@ -1373,6 +1373,7 @@ body.screen-loading-open{overflow:hidden}
                 <textarea id="pitchHook" placeholder="e.g. following our meeting at Shanghai FinTech Forum"></textarea>
               </div>
             </div>
+            <p class="radar-manual-hint" id="pitchTemplateHint"></p>
             <button type="button" class="radar-pitch-gen-btn" id="pitchGenBtn" onclick="generateLeadPitch()">Generate personalised pitch</button>
             <div class="radar-loading" id="radarPitchLoading">
               <div class="radar-loading-ring" aria-hidden="true"></div>
@@ -3645,6 +3646,11 @@ function initScreening(){
 const BRIEF_SYSTEM=`You are a senior investment promotion strategist at Abu Dhabi Investment Office (ADIO). ADIO's mission is to help global investors establish, grow and develop their business in Abu Dhabi — from setup to scale, with access to capital, markets, and partnerships (see investwithabudhabi.com). Your briefs are used by ADIO leadership to prepare for outreach. Always tie analysis to Abu Dhabi's concrete advantages: priority industries (Logistics, Agriculture, Life Sciences, Energy, Finance, Digital & Technology), clusters (SAVI, AGWA, HELM, Musataha, PPP), and investor services.`;
 
 const PITCH_SYSTEM=`You are a senior relationship manager at Abu Dhabi Investment Office (ADIO), the emirate's investment promotion office (investwithabudhabi.com). You write concise, personalised outreach on behalf of ADIO's investor services team. Messages reference Abu Dhabi's advantages — business-ready infrastructure, transparent legal frameworks, Golden Visa, safest city ranking, and sector-specific cluster support — and lead with value for the recipient.`;
+const PITCH_TEMPLATE={
+  name:'Meituan Logistics Abu Dhabi Expansion',
+  path:'/Users/arunkumarg/Downloads/Meituan_Logistics_Abu_Dhabi_Expansion.pptx',
+  sections:['Strategic rationale','Abu Dhabi market fit','ADIO value proposition','Execution milestones','Clear CTA']
+};
 
 const LEAD_SIGNALS=[
   {id:'starzplay',company:'Starzplay',country:'United Arab Emirates',sector:'Digital & Technology',type:'EXPANSION SIGNAL',summary:'Starzplay surpassed AED 370M revenue in 2024 with 2.5x growth since partnering with ADIO in 2022. HQ at Yas Creative Hub with 40+ employees; expanding AI-driven content, fantasy sports, and regional streaming.',strength:'HIGH',whyAdio:'Flagship ADIO success story in media and digital entertainment. Demonstrates Yas Creative Hub ecosystem and AI content innovation aligned with Digital & Technology priority sector.',date:'2024'},
@@ -3712,6 +3718,8 @@ function initLeadRadar(){
     const sectors=[...new Set(LEAD_SIGNALS.map(s=>s.sector))].sort();
     sectors.forEach(sec=>{const o=document.createElement('option');o.value=sec;o.textContent=sec;sel.appendChild(o);});
   }
+  const hint=document.getElementById('pitchTemplateHint');
+  if(hint)hint.textContent=`Template applied: ${PITCH_TEMPLATE.name} (${PITCH_TEMPLATE.path})`;
   renderRadarKpis();
   renderRadarSignals();
   renderLeadPipeline();
@@ -3925,16 +3933,20 @@ function buildPitchUserPrompt(){
   const hook=document.getElementById('pitchHook').value.trim();
   const tone=document.getElementById('pitchTone').value;
   const ctx=currentLeadBrief?.overview||currentLeadContext?.signal?.summary||'';
+  const templateSections=PITCH_TEMPLATE.sections.map((s,i)=>`${i+1}. ${s}`).join('\n');
   return`Write a personalised ${pitchType} from ADIO to ${company}.
 
 Context about the recipient: ${ctx}
 Specific hook or angle: ${hook||'None provided — use signal context above'}
 Tone: ${tone}
 Sender: ${sender}
+Template file to mirror: ${PITCH_TEMPLATE.path}
+Template narrative flow to follow:
+${templateSections}
 
 ADIO context to weave in naturally where relevant: ADIO helps investors establish and grow in Abu Dhabi (investwithabudhabi.com); priority sectors include Logistics, Finance, Digital & Technology, Life Sciences, Energy, and Agriculture; clusters include SAVI, AGWA, HELM, Musataha, and PPP; USD 1.36bn cluster GDP commitments; 111 Musataha contracts; AED 2.4B PPP facilitated.
 
-Write only the message itself — subject line first, then body. No preamble or explanation. Keep it under 200 words. It should feel like it was written by a thoughtful senior person who has done their homework on the recipient, not by a template generator.`;
+Write only the message itself — subject line first, then body. No preamble or explanation. Keep it under 220 words. Use short paragraphs in the same order as the template flow above so the copy can be dropped directly into that deck format. It should feel like it was written by a thoughtful senior person who has done their homework on the recipient, not by a template generator.`;
 }
 
 function parsePitchText(text){
