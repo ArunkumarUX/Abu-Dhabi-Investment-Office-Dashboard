@@ -858,26 +858,75 @@ body.screen-loading-open{overflow:hidden}
 .radar-brief-card li{margin-bottom:8px}
 .radar-brief-card li:last-child{margin-bottom:0}
 .radar-brief-raw{background:#f8f9fa;border:1px solid rgba(0,0,0,.08);border-radius:12px;padding:16px;font-size:13px;white-space:pre-wrap;overflow:auto;max-height:400px;font-family:ui-monospace,monospace}
-.radar-pitch-shell{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px;padding:24px;box-shadow:var(--shadow-card)}
-.radar-pitch-form{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.radar-pitch-field{display:flex;flex-direction:column;gap:6px}
-.radar-pitch-field.full{grid-column:1/-1}
-.radar-pitch-field label{font-size:13px;font-weight:700;color:var(--navy)}
-.radar-pitch-field input,.radar-pitch-field select,.radar-pitch-field textarea{padding:12px 14px;border:1px solid rgba(0,0,0,.12);border-radius:10px;font-size:15px;font-family:inherit;background:#fff}
-.radar-pitch-field textarea{min-height:80px;resize:vertical;line-height:1.5}
-.radar-pitch-gen-btn{width:100%;padding:14px 24px;margin-bottom:16px}
-.radar-pitch-gen-btn:disabled{opacity:.35;cursor:not-allowed}
-.radar-pitch-output{background:var(--gold-light);border:1px solid rgba(165,119,53,.2);border-radius:14px;padding:20px 24px;margin-bottom:12px;display:none}
+.radar-pitch-simple{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.pitch-how-it-works{display:flex;flex-wrap:wrap;gap:10px;padding:14px 16px;border-radius:14px;background:var(--gold-light);border:1px solid rgba(165,119,53,.18)}
+.pitch-how-step{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--navy)}
+.pitch-how-step .n{width:24px;height:24px;border-radius:50%;background:#fff;color:var(--gold);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid rgba(165,119,53,.25)}
+.pitch-how-step.done .n{background:#1F6B54;color:#fff;border-color:#1F6B54}
+.pitch-step-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px;padding:20px 22px;box-shadow:var(--shadow-card)}
+.pitch-step-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:16px}
+.pitch-step-num{width:28px;height:28px;border-radius:50%;background:var(--navy);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pitch-step-num.done{background:#1F6B54}
+.pitch-step-title{font-size:16px;font-weight:800;color:var(--navy);margin:0 0 4px;line-height:1.2}
+.pitch-step-desc{font-size:13px;color:var(--gray);margin:0;line-height:1.45}
+.pitch-status-line{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--gray);margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--surface)}
+.pitch-status-line.ok{color:#1F6B54;background:rgba(31,107,84,.08)}
+.pitch-status-line.warn{color:#8a652d;background:rgba(196,146,42,.1)}
+.pitch-status-line .dot{width:8px;height:8px;border-radius:50%;background:currentColor;flex-shrink:0}
+.radar-pitch-quick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.pitch-quick-lead{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid rgba(0,0,0,.08);border-radius:999px;background:#fff;cursor:pointer;font-family:inherit;text-align:left;transition:all .2s}
+.pitch-quick-lead:hover{border-color:rgba(165,119,53,.4);background:var(--gold-light)}
+.pitch-quick-lead .co{font-size:13px;font-weight:800;color:var(--navy)}
+.pitch-quick-lead .sec{font-size:11px;font-weight:600;color:var(--gray)}
+.pitch-field{margin-bottom:0}
+.pitch-field label{display:block;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.pitch-field input,.pitch-field textarea,.pitch-field select{width:100%;padding:12px 14px;border:1px solid rgba(0,0,0,.12);border-radius:10px;font-size:15px;font-family:inherit;background:#fff}
+.pitch-field input:focus,.pitch-field textarea:focus,.pitch-field select:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px rgba(165,119,53,.1)}
+.pitch-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pitch-type-btn{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;border:2px solid rgba(0,0,0,.08);border-radius:12px;background:#fff;cursor:pointer;font-family:inherit;text-align:left;transition:all .2s}
+.pitch-type-btn:hover{border-color:rgba(165,119,53,.35);background:var(--gold-light)}
+.pitch-type-btn.active{border-color:var(--navy);background:rgba(26,62,110,.04);box-shadow:0 4px 16px rgba(26,62,110,.08)}
+.pitch-type-btn .t{font-size:14px;font-weight:800;color:var(--navy)}
+.pitch-type-btn .d{font-size:11px;font-weight:500;color:var(--gray);line-height:1.35}
+.pitch-more-toggle{margin-top:12px;font-size:13px;font-weight:700;color:var(--gold);background:none;border:none;padding:0;cursor:pointer;font-family:inherit}
+.pitch-more-panel{display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(0,0,0,.06);gap:14px;flex-direction:column}
+.pitch-more-panel.open{display:flex}
+.pitch-more-panel .pitch-field{margin-bottom:0}
+.pitch-generate-wrap{margin-top:4px}
+.radar-pitch-gen-btn{width:100%;padding:16px 24px;margin:0;font-size:15px}
+.radar-pitch-gen-btn:disabled{opacity:.4;cursor:not-allowed}
+.pitch-template-note{font-size:12px;color:var(--gray);margin:10px 0 0;line-height:1.45;text-align:center}
+.pitch-result-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px;box-shadow:var(--shadow-card);overflow:hidden}
+.pitch-result-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid rgba(0,0,0,.06);background:var(--surface)}
+.pitch-result-head h3{font-size:15px;font-weight:800;color:var(--navy);margin:0}
+.pitch-preview-meta{font-size:12px;font-weight:600;color:var(--gray)}
+.pitch-preview-body-wrap{position:relative;padding:20px 22px 24px;min-height:200px}
+.pitch-empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:36px 24px;color:var(--gray)}
+.pitch-empty-state h4{font-size:16px;font-weight:800;color:var(--navy);margin:0 0 6px}
+.pitch-empty-state p{font-size:14px;line-height:1.55;margin:0;max-width:400px}
+.radar-pitch-output{display:none;animation:pitchReveal .35s ease}
 .radar-pitch-output.active{display:block}
-.radar-pitch-subject{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:14px;line-height:1.4;padding-bottom:14px;border-bottom:1px solid rgba(165,119,53,.2)}
-.radar-pitch-body{font-size:15px;line-height:1.7;color:var(--text);white-space:pre-wrap}
-.radar-pitch-actions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
-.radar-pitch-history{margin-top:20px;padding-top:20px;border-top:1px solid rgba(0,0,0,.06)}
-.radar-pitch-history h4{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin:0 0 12px}
-.radar-pitch-log-row{padding:12px 14px;border-radius:10px;border:1px solid rgba(0,0,0,.05);margin-bottom:8px;cursor:pointer;background:#fff;transition:all .15s}
+@keyframes pitchReveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.radar-pitch-subject{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:14px;line-height:1.35;padding-bottom:14px;border-bottom:1px solid rgba(0,0,0,.06)}
+.radar-pitch-body{font-size:15px;line-height:1.75;color:var(--text);white-space:pre-wrap}
+.pitch-preview-loading{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:rgba(255,255,255,.94);z-index:2;border-radius:0 0 16px 16px}
+.pitch-preview-loading.active{display:flex}
+.radar-pitch-actions{display:none;flex-wrap:wrap;gap:8px;padding:0 22px 18px}
+.radar-pitch-actions.visible{display:flex}
+.radar-pitch-history{background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:14px;padding:16px 18px}
+.radar-pitch-history h4{font-size:12px;font-weight:800;color:var(--gray);margin:0 0 10px}
+.radar-pitch-history-list{display:flex;flex-direction:column;gap:8px}
+.radar-pitch-log-row{padding:10px 12px;border-radius:10px;border:1px solid rgba(0,0,0,.05);cursor:pointer;background:#fff;transition:all .15s}
 .radar-pitch-log-row:hover{border-color:rgba(165,119,53,.35);background:var(--gold-light)}
-.radar-pitch-log-co{font-weight:800;color:var(--navy);font-size:14px}
-.radar-pitch-log-type{font-size:11px;font-weight:700;color:var(--gray);margin-left:8px;text-transform:uppercase;letter-spacing:.04em}
+.radar-pitch-log-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.radar-pitch-log-co{font-weight:800;color:var(--navy);font-size:13px}
+.radar-pitch-log-type{font-size:10px;font-weight:700;color:var(--gray);text-transform:uppercase}
+.radar-pitch-log-preview{font-size:12px;color:var(--gray);margin-top:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#pitchType,#pitchTone{position:absolute;opacity:0;pointer-events:none;width:0;height:0}
+@media(max-width:700px){
+  .pitch-type-grid{grid-template-columns:1fr}
+  .pitch-how-it-works{flex-direction:column}
+}
 .radar-pipeline-grid{display:grid;gap:10px}
 .radar-pipeline-row{display:grid;grid-template-columns:1.4fr .8fr .9fr .7fr .6fr .5fr 1fr 1.1fr;gap:12px;align-items:center;padding:14px 18px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:12px;box-shadow:var(--shadow-card);font-size:13px}
 .radar-pipeline-row.head{background:transparent;border:none;box-shadow:none;padding:8px 18px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--gray)}
@@ -901,7 +950,7 @@ body.screen-loading-open{overflow:hidden}
 @media(max-width:700px){
   .radar-subnav{overflow-x:auto;flex-wrap:nowrap}
   .radar-tab{flex-shrink:0;padding:10px 16px;font-size:12px}
-  .radar-brief-grid,.radar-pitch-form{grid-template-columns:1fr}
+  .radar-brief-grid{grid-template-columns:1fr}
   .radar-brief-card.full-width{grid-column:1}
   .radar-manual-row{flex-direction:column}
   .radar-manual-row .radar-btn-primary{width:100%}
@@ -1311,7 +1360,7 @@ body.screen-loading-open{overflow:hidden}
         <nav class="radar-subnav" role="tablist" aria-label="Lead Radar sections">
           <button type="button" class="radar-tab active" role="tab" aria-selected="true" data-radar-tab="signals" onclick="switchRadarTab('signals',this)">Signal Feed</button>
           <button type="button" class="radar-tab" role="tab" aria-selected="false" data-radar-tab="intel" onclick="switchRadarTab('intel',this)">Intelligence</button>
-          <button type="button" class="radar-tab" role="tab" aria-selected="false" data-radar-tab="pitch" onclick="switchRadarTab('pitch',this)">Pitch</button>
+          <button type="button" class="radar-tab" role="tab" aria-selected="false" data-radar-tab="pitch" onclick="switchRadarTab('pitch',this)">Write email</button>
           <button type="button" class="radar-tab" role="tab" aria-selected="false" data-radar-tab="pipeline" onclick="switchRadarTab('pipeline',this)">Pipeline</button>
         </nav>
 
@@ -1352,45 +1401,118 @@ body.screen-loading-open{overflow:hidden}
 
         <div class="radar-panel" id="radarPanelPitch" role="tabpanel">
           <div class="radar-panel-head">
-            <h2>Pitch generator</h2>
-            <p>Personalised outreach grounded in signal context and intelligence briefs.</p>
+            <h2>Write outreach message</h2>
+            <p>Three simple steps — pick a company, choose message type, generate your email.</p>
           </div>
-          <div class="radar-pitch-shell">
-            <div class="radar-pitch-form" id="radarPitchForm">
-              <div class="radar-pitch-field"><label for="pitchTarget">Target company or investor</label><input type="text" id="pitchTarget" autocomplete="organization"></div>
-              <div class="radar-pitch-field"><label for="pitchType">Pitch type</label>
-                <select id="pitchType">
-                  <option>Introduction Email</option><option>Conference Follow-up</option>
-                  <option>Investment Proposal Summary</option><option>Co-Investment Invitation</option>
-                  <option>Market Entry Advisory Offer</option>
-                </select>
+
+          <div class="radar-pitch-simple">
+            <div class="pitch-how-it-works" id="pitchHowItWorks">
+              <div class="pitch-how-step" id="pitchHow1"><span class="n">1</span> Pick company</div>
+              <div class="pitch-how-step" id="pitchHow2"><span class="n">2</span> Choose message</div>
+              <div class="pitch-how-step" id="pitchHow3"><span class="n">3</span> Generate &amp; copy</div>
+            </div>
+
+            <div class="pitch-step-card">
+              <div class="pitch-step-head">
+                <span class="pitch-step-num" id="pitchStepNum1">1</span>
+                <div>
+                  <h3 class="pitch-step-title">Who are you emailing?</h3>
+                  <p class="pitch-step-desc">Tap a lead below or type a company name.</p>
+                </div>
               </div>
-              <div class="radar-pitch-field"><label for="pitchSender">Sender name</label><input type="text" id="pitchSender" value="Investment Team, Abu Dhabi Investment Office"></div>
-              <div class="radar-pitch-field"><label for="pitchTone">Tone</label>
-                <select id="pitchTone"><option>Formal</option><option selected>Professional</option><option>Warm and Direct</option></select>
+              <div class="radar-pitch-quick" id="pitchQuickLeads"></div>
+              <div class="pitch-field">
+                <label for="pitchTarget">Company name</label>
+                <input type="text" id="pitchTarget" autocomplete="organization" placeholder="e.g. Meituan, Bain Capital, Starzplay" oninput="updatePitchUI()">
               </div>
-              <div class="radar-pitch-field full"><label for="pitchHook">Specific angle or hook <span style="font-weight:500;color:var(--gray)">optional</span></label>
-                <textarea id="pitchHook" placeholder="e.g. following our meeting at Shanghai FinTech Forum"></textarea>
+              <div class="pitch-status-line" id="pitchStatusLine">
+                <span class="dot"></span>
+                <span id="pitchStatusText">No company selected yet</span>
               </div>
             </div>
-            <p class="radar-manual-hint" id="pitchTemplateHint"></p>
-            <button type="button" class="radar-pitch-gen-btn" id="pitchGenBtn" onclick="generateLeadPitch()">Generate personalised pitch</button>
-            <div class="radar-loading" id="radarPitchLoading">
-              <div class="radar-loading-ring" aria-hidden="true"></div>
-              <div class="radar-loading-text">Crafting your message…</div>
+
+            <div class="pitch-step-card">
+              <div class="pitch-step-head">
+                <span class="pitch-step-num" id="pitchStepNum2">2</span>
+                <div>
+                  <h3 class="pitch-step-title">What kind of message?</h3>
+                  <p class="pitch-step-desc">Choose the outreach style that fits your goal.</p>
+                </div>
+              </div>
+              <div class="pitch-type-grid" id="pitchTypeGrid"></div>
+              <select id="pitchType" aria-hidden="true" tabindex="-1">
+                <option>Introduction Email</option><option>Conference Follow-up</option>
+                <option>Investment Proposal Summary</option><option>Co-Investment Invitation</option>
+                <option>Market Entry Advisory Offer</option>
+              </select>
+              <button type="button" class="pitch-more-toggle" id="pitchMoreToggle" onclick="togglePitchMore()">More options ▾</button>
+              <div class="pitch-more-panel" id="pitchMorePanel">
+                <div class="pitch-field">
+                  <label for="pitchTypeAlt">Other message types</label>
+                  <select id="pitchTypeAlt" onchange="if(this.value)setPitchType(this.value)">
+                    <option value="">Choose if none of the three above fit</option>
+                    <option value="Co-Investment Invitation">Co-investment invitation</option>
+                    <option value="Market Entry Advisory Offer">Market entry advisory</option>
+                  </select>
+                </div>
+                <div class="pitch-field">
+                  <label for="pitchTone">Tone</label>
+                  <select id="pitchTone" onchange="updatePitchUI()">
+                    <option>Formal</option><option selected>Professional</option><option>Warm and Direct</option>
+                  </select>
+                </div>
+                <div class="pitch-field">
+                  <label for="pitchSender">Your name / team</label>
+                  <input type="text" id="pitchSender" value="Investment Team, Abu Dhabi Investment Office" oninput="updatePitchUI()">
+                </div>
+                <div class="pitch-field">
+                  <label for="pitchHook">Personal note <span style="font-weight:500;color:var(--gray)">optional</span></label>
+                  <textarea id="pitchHook" rows="3" placeholder="e.g. Great meeting you at the Dubai Fintech Summit" oninput="updatePitchUI()"></textarea>
+                </div>
+              </div>
             </div>
-            <div class="radar-pitch-output" id="radarPitchOutput">
-              <div class="radar-pitch-subject" id="radarPitchSubject"></div>
-              <div class="radar-pitch-body" id="radarPitchBody"></div>
+
+            <div class="pitch-step-card pitch-generate-wrap">
+              <div class="pitch-step-head">
+                <span class="pitch-step-num" id="pitchStepNum3">3</span>
+                <div>
+                  <h3 class="pitch-step-title">Generate your message</h3>
+                  <p class="pitch-step-desc">AI writes a ready-to-send email using your company brief when available.</p>
+                </div>
+              </div>
+              <button type="button" class="radar-pitch-gen-btn" id="pitchGenBtn" onclick="generateLeadPitch()" disabled>Generate email</button>
+              <p class="pitch-template-note" id="pitchTemplateHint"></p>
             </div>
-            <div class="radar-pitch-actions" id="radarPitchActions" style="display:none">
-              <button type="button" class="radar-btn radar-btn-outline" onclick="copyLeadPitch()">Copy to clipboard</button>
-              <button type="button" class="radar-btn radar-btn-outline" onclick="generateLeadPitch(true)">Regenerate</button>
-              <button type="button" class="radar-btn radar-btn-primary" onclick="savePitchToLeadRecord()">Save to lead record</button>
+
+            <div class="pitch-result-card">
+              <div class="pitch-result-head">
+                <h3>Your message</h3>
+                <span class="pitch-preview-meta" id="pitchPreviewMeta">Complete steps 1–2 first</span>
+              </div>
+              <div class="pitch-preview-body-wrap">
+                <div class="pitch-preview-loading" id="radarPitchLoading">
+                  <div class="radar-loading-ring" aria-hidden="true"></div>
+                  <div class="radar-loading-text">Writing your message…</div>
+                </div>
+                <div class="pitch-empty-state" id="pitchEmptyState">
+                  <h4>Your email will show here</h4>
+                  <p>After you pick a company and tap Generate email, the subject line and message body appear in this box. You can copy it straight into Outlook or Gmail.</p>
+                </div>
+                <div class="radar-pitch-output" id="radarPitchOutput">
+                  <div class="radar-pitch-subject" id="radarPitchSubject"></div>
+                  <div class="radar-pitch-body" id="radarPitchBody"></div>
+                </div>
+              </div>
+              <div class="radar-pitch-actions" id="radarPitchActions">
+                <button type="button" class="radar-btn radar-btn-primary" onclick="copyLeadPitch()">Copy message</button>
+                <button type="button" class="radar-btn radar-btn-outline" onclick="generateLeadPitch(true)">Write again</button>
+                <button type="button" class="radar-btn radar-btn-outline" onclick="savePitchToLeadRecord()">Save to pipeline</button>
+              </div>
             </div>
-            <div class="radar-pitch-history">
-              <h4>Pitch history</h4>
-              <div id="radarPitchHistory"><div class="radar-empty">No pitches generated yet this session.</div></div>
+
+            <div class="radar-pitch-history" id="pitchHistoryWrap" style="display:none">
+              <h4>Recent messages this session</h4>
+              <div class="radar-pitch-history-list" id="radarPitchHistory"></div>
             </div>
           </div>
         </div>
@@ -3651,6 +3773,12 @@ const PITCH_TEMPLATE={
   path:'/Users/arunkumarg/Downloads/Meituan_Logistics_Abu_Dhabi_Expansion.pptx',
   sections:['Strategic rationale','Abu Dhabi market fit','ADIO value proposition','Execution milestones','Clear CTA']
 };
+const PITCH_TYPES=['Introduction Email','Conference Follow-up','Investment Proposal Summary','Co-Investment Invitation','Market Entry Advisory Offer'];
+const PITCH_TYPE_OPTIONS=[
+  {value:'Introduction Email',title:'Intro email',desc:'First contact with a new company'},
+  {value:'Conference Follow-up',title:'Follow-up',desc:'After a meeting or event'},
+  {value:'Investment Proposal Summary',title:'Partnership',desc:'Propose Abu Dhabi opportunity'}
+];
 
 const LEAD_SIGNALS=[
   {id:'starzplay',company:'Starzplay',country:'United Arab Emirates',sector:'Digital & Technology',type:'EXPANSION SIGNAL',summary:'Starzplay surpassed AED 370M revenue in 2024 with 2.5x growth since partnering with ADIO in 2022. HQ at Yas Creative Hub with 40+ employees; expanding AI-driven content, fantasy sports, and regional streaming.',strength:'HIGH',whyAdio:'Flagship ADIO success story in media and digital entertainment. Demonstrates Yas Creative Hub ecosystem and AI content innovation aligned with Digital & Technology priority sector.',date:'2024'},
@@ -3695,6 +3823,7 @@ function switchRadarTab(tabId,btn){
   Object.entries(RADAR_PANEL_IDS).forEach(([id,panelId])=>{
     document.getElementById(panelId)?.classList.toggle('active',id===tabId);
   });
+  if(tabId==='pitch')updatePitchUI();
 }
 
 function renderRadarKpis(){
@@ -3708,7 +3837,7 @@ function renderRadarKpis(){
     {l:'Active Signals',v:String(LEAD_SIGNALS.length),s:`${sectors} priority sectors`},
     {l:'High Priority',v:String(high),s:'Strength: HIGH'},
     {l:'Pipeline Leads',v:String(pipe),s:'Session tracker'},
-    {l:'Pitches This Session',v:String(pitches),s:'Generated outreach'}
+    {l:'Emails Written',v:String(pitches),s:'This session'}
   ]);
 }
 
@@ -3719,10 +3848,128 @@ function initLeadRadar(){
     sectors.forEach(sec=>{const o=document.createElement('option');o.value=sec;o.textContent=sec;sel.appendChild(o);});
   }
   const hint=document.getElementById('pitchTemplateHint');
-  if(hint)hint.textContent=`Template applied: ${PITCH_TEMPLATE.name} (${PITCH_TEMPLATE.path})`;
+  if(hint)hint.textContent='Uses your ADIO deck template structure behind the scenes.';
+  renderPitchQuickLeads();
+  renderPitchTypeGrid();
+  showPitchEmptyState();
+  updatePitchUI();
   renderRadarKpis();
   renderRadarSignals();
   renderLeadPipeline();
+}
+
+function togglePitchMore(){
+  const panel=document.getElementById('pitchMorePanel');
+  const btn=document.getElementById('pitchMoreToggle');
+  if(!panel||!btn)return;
+  const open=panel.classList.toggle('open');
+  btn.textContent=open?'Fewer options ▴':'More options ▾';
+}
+
+function renderPitchQuickLeads(){
+  const el=document.getElementById('pitchQuickLeads');
+  if(!el)return;
+  const picks=LEAD_SIGNALS.filter(s=>s.strength==='HIGH').slice(0,4);
+  el.innerHTML=picks.map(s=>`
+    <button type="button" class="pitch-quick-lead" onclick="populatePitchFromSignal('${s.id}')">
+      <span class="co">${esc(s.company)}</span>
+      <span class="sec">· ${esc(s.sector)}</span>
+    </button>`).join('');
+}
+
+function renderPitchTypeGrid(){
+  const el=document.getElementById('pitchTypeGrid');
+  const sel=document.getElementById('pitchType');
+  if(!el||!sel)return;
+  const current=sel.value;
+  el.innerHTML=PITCH_TYPE_OPTIONS.map((opt,i)=>`
+    <button type="button" class="pitch-type-btn${opt.value===current?' active':''}" onclick="setPitchTypeByIndex(${i})">
+      <span class="t">${esc(opt.title)}</span>
+      <span class="d">${esc(opt.desc)}</span>
+    </button>`).join('');
+}
+
+function setPitchTypeByIndex(i){
+  const opt=PITCH_TYPE_OPTIONS[i];
+  if(!opt)return;
+  setPitchType(opt.value);
+}
+
+function setPitchType(value){
+  const sel=document.getElementById('pitchType');
+  if(sel)sel.value=value;
+  const alt=document.getElementById('pitchTypeAlt');
+  if(alt&&!PITCH_TYPE_OPTIONS.some(o=>o.value===value))alt.value=value;
+  else if(alt)alt.value='';
+  renderPitchTypeGrid();
+  updatePitchUI();
+}
+
+function updatePitchUI(){
+  const company=document.getElementById('pitchTarget')?.value.trim()||'';
+  const pitchType=document.getElementById('pitchType')?.value||'';
+  const btn=document.getElementById('pitchGenBtn');
+  const statusLine=document.getElementById('pitchStatusLine');
+  const statusText=document.getElementById('pitchStatusText');
+  const signal=currentLeadContext?.signal;
+  const brief=currentLeadBrief;
+  const hasBrief=brief&&!brief._raw;
+  const companyMatch=company&&(signal?.company?.toLowerCase()===company.toLowerCase()||brief?.company?.toLowerCase()===company.toLowerCase());
+
+  if(btn)btn.disabled=!company;
+  if(statusLine&&statusText){
+    if(!company){
+      statusLine.className='pitch-status-line';
+      statusText.textContent='No company selected yet';
+    }else if(hasBrief&&companyMatch){
+      statusLine.className='pitch-status-line ok';
+      statusText.textContent=`Brief ready for ${brief.company} — your message will be more personalised`;
+    }else if(signal&&companyMatch){
+      statusLine.className='pitch-status-line ok';
+      statusText.textContent=`Signal loaded for ${signal.company}`;
+    }else{
+      statusLine.className='pitch-status-line warn';
+      statusText.textContent='No brief yet — message will still generate, but add a brief in Intelligence for better results';
+    }
+  }
+
+  document.getElementById('pitchHow1')?.classList.toggle('done',!!company);
+  document.getElementById('pitchHow2')?.classList.toggle('done',!!pitchType);
+  document.getElementById('pitchStepNum1')?.classList.toggle('done',!!company);
+  document.getElementById('pitchStepNum2')?.classList.toggle('done',!!pitchType);
+
+  const meta=document.getElementById('pitchPreviewMeta');
+  if(meta&&!currentLeadPitch){
+    meta.textContent=company?'Ready — tap Generate email':'Complete step 1 first';
+  }
+}
+
+function showPitchEmptyState(){
+  const empty=document.getElementById('pitchEmptyState');
+  const out=document.getElementById('radarPitchOutput');
+  const actions=document.getElementById('radarPitchActions');
+  const meta=document.getElementById('pitchPreviewMeta');
+  if(empty)empty.style.display='flex';
+  if(out)out.classList.remove('active');
+  if(actions)actions.classList.remove('visible');
+  if(meta)meta.textContent='Complete steps 1–2 first';
+}
+
+function showPitchPreview(pitch){
+  const empty=document.getElementById('pitchEmptyState');
+  const out=document.getElementById('radarPitchOutput');
+  const actions=document.getElementById('radarPitchActions');
+  const meta=document.getElementById('pitchPreviewMeta');
+  const words=(pitch.body||'').trim().split(/\s+/).filter(Boolean).length;
+  if(empty)empty.style.display='none';
+  if(out)out.classList.add('active');
+  if(actions)actions.classList.add('visible');
+  if(meta)meta.textContent=`${words} words — ready to copy`;
+  document.getElementById('radarPitchSubject').textContent=pitch.subject;
+  document.getElementById('radarPitchBody').textContent=pitch.body;
+  document.getElementById('pitchHow3')?.classList.add('done');
+  document.getElementById('pitchStepNum3')?.classList.add('done');
+  updatePitchUI();
 }
 
 function setRadarFilter(kind,val,btn){
@@ -3762,7 +4009,7 @@ function renderRadarSignals(){
           <time class="radar-signal-date">${esc(s.date)}</time>
           <div class="radar-signal-actions">
             <button type="button" class="radar-btn radar-btn-primary" onclick="viewLeadBrief('${s.id}')">View brief</button>
-            <button type="button" class="radar-btn radar-btn-outline" onclick="populatePitchFromSignal('${s.id}')">Pitch</button>
+            <button type="button" class="radar-btn radar-btn-outline" onclick="populatePitchFromSignal('${s.id}')">Write email</button>
           </div>
         </footer>
       </div>
@@ -3867,7 +4114,7 @@ function renderLeadBrief(brief){
       <div class="radar-brief-card"><h4>Risk flags</h4><ul>${(brief.risk_flags||[]).map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>
       <div class="radar-brief-card full-width"><h4>Comparable deals</h4><ul>${(brief.comparable_deals||[]).map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>
     </div>
-    <div style="margin-top:16px"><button type="button" class="radar-btn radar-btn-primary" onclick="populatePitchFromBrief()">Generate pitch for ${esc(brief.company)}</button></div>`;
+    <div style="margin-top:16px"><button type="button" class="radar-btn radar-btn-primary" onclick="populatePitchFromBrief()">Write email to ${esc(brief.company)}</button></div>`;
 }
 
 async function viewLeadBrief(signalId){
@@ -3885,6 +4132,7 @@ async function viewLeadBrief(signalId){
     currentLeadBrief=brief;
     currentLeadContext.brief=brief;
     renderLeadBrief(brief);
+    updatePitchUI();
     upsertLeadRecord({company:signal.company,country:signal.country,sector:signal.sector,strength:signal.strength,lastAction:'Intelligence Brief',status:'New'});
     if(brief._mock)showUploadToast('API unavailable — showing structured demo brief');
   }finally{loadEl.classList.remove('active');}
@@ -3904,6 +4152,7 @@ async function generateLeadBriefManual(){
     currentLeadBrief=brief;
     currentLeadContext.brief=brief;
     renderLeadBrief(brief);
+    updatePitchUI();
     upsertLeadRecord({company:brief.company||input.split(/[,\n]/)[0].trim(),country:signal?.country||'—',sector:signal?.sector||'—',strength:signal?.strength||'—',lastAction:'Intelligence Brief',status:'New'});
     if(brief._mock)showUploadToast('API unavailable — showing structured demo brief');
   }finally{loadEl.classList.remove('active');}
@@ -3915,6 +4164,7 @@ function populatePitchFromSignal(signalId){
   document.getElementById('pitchTarget').value=signal.company;
   document.getElementById('pitchHook').value=signal.summary.slice(0,200);
   currentLeadContext={signal,brief:currentLeadBrief};
+  updatePitchUI();
   switchRadarTab('pitch',document.querySelector('.radar-tab[data-radar-tab="pitch"]'));
 }
 
@@ -3923,6 +4173,7 @@ function populatePitchFromBrief(){
   if(!company)return;
   document.getElementById('pitchTarget').value=company;
   if(currentLeadBrief?.overview)document.getElementById('pitchHook').value=currentLeadBrief.overview.slice(0,200);
+  updatePitchUI();
   switchRadarTab('pitch',document.querySelector('.radar-tab[data-radar-tab="pitch"]'));
 }
 
@@ -3998,8 +4249,8 @@ async function generateLeadPitch(isRegen){
   if(!company){showUploadToast('Enter a target company','error');return;}
   const loadEl=document.getElementById('radarPitchLoading');
   const btn=document.getElementById('pitchGenBtn');
-  loadEl.classList.add('active');
-  btn.disabled=true;
+  loadEl?.classList.add('active');
+  if(btn)btn.disabled=true;
   try{
     const user=buildPitchUserPrompt();
     let pitch=null;
@@ -4010,14 +4261,14 @@ async function generateLeadPitch(isRegen){
       if(pitch._mock)showUploadToast('API unavailable — showing demo pitch');
     }
     currentLeadPitch=pitch;
-    document.getElementById('radarPitchSubject').textContent=pitch.subject;
-    document.getElementById('radarPitchBody').textContent=pitch.body;
-    document.getElementById('radarPitchOutput').classList.add('active');
-    document.getElementById('radarPitchActions').style.display='flex';
+    showPitchPreview(pitch);
     const signal=currentLeadContext?.signal||LEAD_SIGNALS.find(s=>s.company.toLowerCase()===company.toLowerCase());
     upsertLeadRecord({company,country:signal?.country||'—',sector:signal?.sector||'—',strength:signal?.strength||'—',lastAction:isRegen?'Pitch Regenerated':'Pitch Generated',pitchGenerated:true,status:'New'});
     addPitchHistory(company,document.getElementById('pitchType').value,pitch);
-  }finally{loadEl.classList.remove('active');btn.disabled=false;}
+  }finally{
+    loadEl?.classList.remove('active');
+    updatePitchUI();
+  }
 }
 
 function addPitchHistory(company,type,pitch){
@@ -4029,13 +4280,21 @@ function addPitchHistory(company,type,pitch){
 
 function renderPitchHistory(){
   const el=document.getElementById('radarPitchHistory');
+  const wrap=document.getElementById('pitchHistoryWrap');
   if(!el)return;
-  if(!pitchHistory.length){el.innerHTML='<div class="radar-empty">No pitches generated yet this session.</div>';return;}
+  if(!pitchHistory.length){
+    if(wrap)wrap.style.display='none';
+    el.innerHTML='';
+    return;
+  }
+  if(wrap)wrap.style.display='block';
   el.innerHTML=pitchHistory.map((p,i)=>`
     <div class="radar-pitch-log-row" onclick="restorePitch(${i})">
-      <span class="radar-pitch-log-co">${esc(p.company)}</span>
-      <span class="radar-pitch-log-type">${esc(p.type)}</span>
-      <div style="font-size:13px;color:var(--gray);margin-top:4px">${esc(p.preview)}</div>
+      <div class="radar-pitch-log-top">
+        <span class="radar-pitch-log-co">${esc(p.company)}</span>
+        <span class="radar-pitch-log-type">${esc(p.type)}</span>
+      </div>
+      <div class="radar-pitch-log-preview">${esc(p.preview)}</div>
     </div>`).join('');
 }
 
@@ -4045,16 +4304,15 @@ function restorePitch(i){
   currentLeadPitch=p.pitch;
   document.getElementById('pitchTarget').value=p.company;
   document.getElementById('pitchType').value=p.type;
-  document.getElementById('radarPitchSubject').textContent=p.pitch.subject;
-  document.getElementById('radarPitchBody').textContent=p.pitch.body;
-  document.getElementById('radarPitchOutput').classList.add('active');
-  document.getElementById('radarPitchActions').style.display='flex';
+  renderPitchTypeGrid();
+  showPitchPreview(p.pitch);
+  updatePitchUI();
 }
 
 function copyLeadPitch(){
   if(!currentLeadPitch)return;
   const full=`Subject: ${currentLeadPitch.subject}\n\n${currentLeadPitch.body}`;
-  navigator.clipboard.writeText(full).then(()=>showUploadToast('Pitch copied to clipboard')).catch(()=>showUploadToast('Copy failed — select text manually',true));
+  navigator.clipboard.writeText(full).then(()=>showUploadToast('Message copied — paste into your email app')).catch(()=>showUploadToast('Copy failed — select text manually',true));
 }
 
 function savePitchToLeadRecord(){
