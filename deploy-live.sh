@@ -11,5 +11,5 @@ if [ ! -d .netlify ]; then
   echo "→ Linking to site adio-intelligence-dashboard (browser may open)..."
   netlify link --name adio-intelligence-dashboard
 fi
-netlify deploy --prod --dir=. --no-build
+netlify deploy --prod --dir=. --functions=netlify/functions --no-build
 echo "✓ Live at https://adio-intelligence-dashboard.netlify.app/"
