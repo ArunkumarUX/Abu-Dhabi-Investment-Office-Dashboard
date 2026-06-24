@@ -2,6 +2,9 @@
   publish = "."
   command = ""
 
+[functions]
+  directory = "netlify/functions"
+
 [build.environment]
   NODE_VERSION = "20"
 
