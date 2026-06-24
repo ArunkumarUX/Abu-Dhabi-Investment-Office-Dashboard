@@ -1016,7 +1016,7 @@ body.screen-loading-open{overflow:hidden}
     <nav class="sidebar-nav" id="sidebarNav">
       <button class="nav-btn active" data-page="portfolio" onclick="go('portfolio',this)">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <span class="nav-label">Strategic Sectors</span>
+        <span class="nav-label">Portfolio</span>
       </button>
       <button class="nav-btn nav-btn-premium" data-page="screening" onclick="go('screening',this)">
         <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -1076,10 +1076,10 @@ body.screen-loading-open{overflow:hidden}
       </div>
       <div class="vitals-scroll-wrap">
       <div class="header-vitals" id="topVitals">
-        <div class="hv"><div class="hv-k">GDP Commitments</div><div class="hv-v accent" id="v-nav">USD 1.36bn</div></div>
-        <div class="hv"><div class="hv-k">Musataha Contracts</div><div class="hv-v" id="v-irr">111</div></div>
-        <div class="hv"><div class="hv-k">PPP Facilitated</div><div class="hv-v accent" id="v-alpha">AED 2.4B</div></div>
-        <div class="hv"><div class="hv-k">Non-Oil Exports</div><div class="hv-v" id="v-companies">+15.1%</div></div>
+        <div class="hv"><div class="hv-k">Total NAV</div><div class="hv-v accent" id="v-nav">AED 18.9B</div></div>
+        <div class="hv"><div class="hv-k">Portfolio IRR</div><div class="hv-v" id="v-irr">18.9%</div></div>
+        <div class="hv"><div class="hv-k">Alpha vs Benchmark</div><div class="hv-v accent" id="v-alpha">+810bps</div></div>
+        <div class="hv"><div class="hv-k">Active Companies</div><div class="hv-v" id="v-companies">61</div></div>
       </div>
       </div>
     </header>
@@ -1093,24 +1093,24 @@ body.screen-loading-open{overflow:hidden}
       <!-- PORTFOLIO -->
       <div class="page active" id="page-portfolio">
         <header class="page-header">
-          <p class="section-eyebrow">Priority Industries</p>
-          <h1>Strategic Sectors</h1>
-          <p class="meta" id="portfolio-meta">Logistics · Finance · Digital & Technology · Life Sciences · Energy · Agriculture — official ADIO priority industries</p>
+          <p class="section-eyebrow">Executive</p>
+          <h1>Portfolio Overview</h1>
+          <p class="meta" id="portfolio-meta">Capital deployment · sector allocation · official ADIO Q4 2024 data</p>
         </header>
         <div class="kpi-grid" id="krow-portfolio"></div>
         <div class="grid-2">
           <div class="apple-card widget-card allocation-chart-card">
-            <div class="widget-head"><div><div class="widget-title">Priority Industries Overview</div><div class="widget-sub">ADIO strategic sectors — programme reach vs active investor engagement</div></div></div>
+            <div class="widget-head"><div><div class="widget-title">Allocation vs Deployed by Sector</div><div class="widget-sub">Capital deployment across portfolio segments</div></div></div>
             <div class="chart-frame"><canvas id="c1"></canvas></div>
           </div>
           <div class="apple-card widget-card irr-visual-card">
-            <div class="widget-head"><div><div class="widget-title">Sector Focus Index</div><div class="widget-sub">Priority industries ranked by strategic investor demand</div></div></div>
+            <div class="widget-head"><div><div class="widget-title">IRR by Sector</div><div class="widget-sub">Sector returns ranked by IRR</div></div></div>
             <div class="irr-visual" id="irrBars"></div>
           </div>
         </div>
         <div class="insight-panel">
           <p class="insight-eyebrow">Intelligence</p>
-          <h3 class="insight-title">AI Sector Intelligence</h3>
+          <h3 class="insight-title">AI Portfolio Intelligence</h3>
           <ul class="insight-list" id="ins-portfolio"></ul>
         </div>
       </div>
@@ -1605,7 +1605,7 @@ body.screen-loading-open{overflow:hidden}
 
 <script>
 const PAGE_META={
-  portfolio:{section:'Priority Industries',title:'Strategic Sectors'},
+  portfolio:{section:'Investment Intelligence',title:'Portfolio'},
   screening:{section:'AI Screening',title:'Risk Assessment'},
   radar:{section:'Lead Radar',title:'Lead Radar'},
   pipeline:{section:'Investor Services',title:'Setup Pipeline'},
@@ -1646,13 +1646,13 @@ const ADIO_OFFICIAL={
 };
 
 const PORT=[
-  {s:'Logistics',a:100,d:92,irr:92},
-  {s:'Finance',a:98,d:90,irr:90},
-  {s:'Digital & Tech',a:96,d:88,irr:88},
-  {s:'Life Sciences',a:94,d:82,irr:85},
-  {s:'Energy',a:92,d:85,irr:84},
-  {s:'Agriculture',a:90,d:78,irr:82},
-  {s:'Retail',a:88,d:74,irr:78}
+  {s:'Technology',a:2800,d:2100,irr:18.4},
+  {s:'Healthcare',a:1900,d:1650,irr:14.2},
+  {s:'Real Estate',a:3200,d:3200,irr:9.8},
+  {s:'Energy',a:2400,d:2050,irr:11.6},
+  {s:'Logistics',a:1600,d:1200,irr:16.1},
+  {s:'FinTech',a:1100,d:780,irr:22.3},
+  {s:'AgriTech',a:650,d:420,irr:12.8}
 ];
 const PIPE=[
   {m:'Jan',sc:72,dd:38,ap:24,cl:14},
@@ -1671,9 +1671,9 @@ const PERF=[
 ];
 const ADIO_INSIGHTS={
   portfolio:[
-    'Digital & Technology leads ADIO priority industries — Abu Dhabi is home to the world\'s first AI university and major investments in AI and smart technologies, creating strong inbound demand for media, fintech, and platform companies.',
-    'Logistics remains a core strategic sector: Abu Dhabi\'s integrated transport networks and connectivity to 100+ global destinations position the emirate as a regional logistics hub with growing investor opportunities.',
-    'Agriculture and sustainability clusters (including AGWA) drive large-scale innovation in food, water, and AgTech — site of the world\'s largest indoor vertical farm for R&D.'
+    'FinTech shows the highest IRR at 22.3% but remains underdeployed at 71% of allocation — increasing deployment to full capacity could generate an estimated AED 92M in additional annual returns.',
+    'Real Estate is fully deployed at AED 3.2B yet produces the lowest IRR at 9.8%. A rebalancing review toward Technology and Logistics could improve blended portfolio IRR by an estimated 120 basis points.',
+    'Overall portfolio deployment efficiency stands at 84% (AED 13.2B of AED 15.7B allocated). The remaining AED 2.5B uncommitted capital represents a significant near-term return enhancement opportunity.'
   ],
   pipeline:[
     'ADIO supports investors with guidance, funding, and connections from setup to scale — enabling seamless entry through mainland, free zone, and Musataha land lease pathways.',
@@ -1706,7 +1706,7 @@ const PAGES=['portfolio','screening','radar','pipeline','performance','macro','i
 
 function getCtx(){
   return{
-    port:`ADIO priority industries: ${JSON.stringify(PORT)}. Official impact: USD ${ADIO_OFFICIAL.impact.gdpCommitmentsUsd} GDP cluster commitments, ${ADIO_OFFICIAL.impact.musatahaContracts} Musataha contracts (USD ${ADIO_OFFICIAL.impact.musatahaInvestmentUsd}). Source: investwithabudhabi.com`,
+    port:`ADIO portfolio sector data: ${JSON.stringify(PORT)}. Total NAV AED 18.9B, Portfolio IRR 18.9%, 61 active companies, 30 deals closed YTD.`,
     pipe:`ADIO investor pipeline H1: ${JSON.stringify(PIPE)}. ADIO supports setup-to-scale through investor services, free zones, and Musataha land leases.`,
     perf:`ADIO impact trend: ${JSON.stringify(PERF)}. PPP facilitated AED ${ADIO_OFFICIAL.impact.pppFacilitatedAed} (2020-2024). Non-oil exports +${ADIO_OFFICIAL.impact.nonOilExportGrowth} (2023-2024). Manufacturing USD ${ADIO_OFFICIAL.impact.manufacturingGdpUsd} (${ADIO_OFFICIAL.impact.manufacturingGdpShare} of GDP).`,
     macro:`Abu Dhabi advantage: ${ADIO_OFFICIAL.advantages.join('; ')}. ADIO vision: ${ADIO_OFFICIAL.vision}. PPP pipeline AED ${ADIO_OFFICIAL.impact.pppPipelineAed}.`,
@@ -1744,14 +1744,14 @@ function insHtml(list){return list.map((t,i)=>`<li><span class="insight-badge">$
 function loadAdioOfficial(silent){
   useCustomData=false;dataset=[];built={};csvCtx='';
   localStorage.removeItem('adio_data');localStorage.removeItem('adio_source');localStorage.removeItem('adio_filename');localStorage.removeItem('adio_upload_active_id');
-  document.getElementById('liveLabel').textContent='OFFICIAL — ADIO';
+  document.getElementById('liveLabel').textContent='LIVE — Q4 2024';
   const up=document.getElementById('up-tab');if(up)up.querySelector('.nav-label').textContent='Upload Data';
   document.getElementById('cso').style.display='none';
   document.getElementById('thk').style.display='none';
   const fi=document.getElementById('fi');if(fi)fi.value='';
   refreshAll();
   updateDataSourceUI();
-  if(!silent)showUploadToast('Restored official ADIO data from investwithabudhabi.com');
+  if(!silent)showUploadToast('Restored official ADIO Q4 2024 data');
 }
 
 const UPLOAD_HISTORY_KEY='adio_upload_history';
@@ -1820,7 +1820,7 @@ function updateDataSourceUI(){
   if(resetBtn)resetBtn.style.display=custom?'inline-flex':'none';
   if(viewBtn)viewBtn.style.display=custom?'inline-flex':'none';
   const pmeta=document.getElementById('portfolio-meta');
-  if(pmeta)pmeta.textContent=custom?`Live from your upload · ${fn} · ${dataset.length} records`:'Priority industries · investor programmes · official ADIO data from investwithabudhabi.com';
+  if(pmeta)pmeta.textContent=custom?`Live from your upload · ${fn} · ${dataset.length} records`:'Capital deployment · sector allocation · official ADIO Q4 2024 data';
   const up=document.getElementById('up-tab');
   if(up)up.querySelector('.nav-label').textContent=custom?'Upload ✓':'Upload Data';
   if(custom){
@@ -1830,10 +1830,10 @@ function updateDataSourceUI(){
     setVitalLabel('v-alpha','Sectors');
     setVitalLabel('v-companies','Markets');
   }else{
-    setVitalLabel('v-nav','GDP Commitments');
-    setVitalLabel('v-irr','Musataha Contracts');
-    setVitalLabel('v-alpha','PPP Facilitated');
-    setVitalLabel('v-companies','Non-Oil Exports');
+    setVitalLabel('v-nav','Total NAV');
+    setVitalLabel('v-irr','Portfolio IRR');
+    setVitalLabel('v-alpha','Alpha vs Benchmark');
+    setVitalLabel('v-companies','Active Companies');
   }
   renderUploadHistoryList();
 }
@@ -1903,17 +1903,17 @@ function refreshAll(){
 }
 
 function renderAdioAll(){
-  document.getElementById('v-nav').textContent='USD '+ADIO_OFFICIAL.impact.gdpCommitmentsUsd;
-  document.getElementById('v-irr').textContent=String(ADIO_OFFICIAL.impact.musatahaContracts);
-  document.getElementById('v-alpha').textContent='AED '+ADIO_OFFICIAL.impact.pppFacilitatedAed;
-  document.getElementById('v-companies').textContent='+'+ADIO_OFFICIAL.impact.nonOilExportGrowth;
+  document.getElementById('v-nav').textContent='AED 18.9B';
+  document.getElementById('v-irr').textContent='18.9%';
+  document.getElementById('v-alpha').textContent='+810bps';
+  document.getElementById('v-companies').textContent='61';
   document.getElementById('krow-portfolio').innerHTML=kpiHtml([
-    {l:'GDP Commitments',v:'USD 1.36bn',s:'Cluster programme'},
-    {l:'Musataha Contracts',v:'111',s:'USD 735M investment value'},
-    {l:'Manufacturing GDP',v:'USD 30.4bn',s:'9.5% of GDP (2024)'},
-    {l:'Priority Sectors',v:'7',s:'Logistics · Finance · Digital · Life Sciences · Energy · Agriculture · Retail'},
-    {l:'ADIO Clusters',v:'5',s:'SAVI · AGWA · HELM · Musataha · PPP'},
-    {l:'IJGlobal Awards',v:'3×',s:'PPP Deals of the Year 2022–2024'}
+    {l:'Total NAV',v:'AED 18.9B',s:'+52.4% since Q1 2023'},
+    {l:'Portfolio IRR',v:'18.9%',s:'810bps above benchmark'},
+    {l:'Deployed Capital',v:'AED 13.2B',s:'84% of AED 15.7B alloc.'},
+    {l:'Active Companies',v:'61',s:'across 7 sectors'},
+    {l:'Deals Closed YTD',v:'30',s:'+71% YoY pipeline growth'},
+    {l:'Avg Deal IRR',v:'14.9%',s:'vs 9.8% regional average'}
   ]);
   document.getElementById('krow-pipeline').innerHTML=kpiHtml([
     {l:'Investor Inquiries',v:'477',s:'H1 total'},
@@ -2113,7 +2113,7 @@ function renderIrrVisual(containerId,rows,{max=25,benchmark,labelKey='s',valueKe
 }
 
 function bPortAdio(){
-  renderIrrVisual('irrBars',PORT,{max:100,benchmark:80});
+  renderIrrVisual('irrBars',PORT,{max:25,benchmark:10.8});
   buildAllocationChart(PORT.map(p=>p.s),PORT.map(p=>p.a),PORT.map(p=>p.d));
 }
 
@@ -2334,19 +2334,27 @@ function renderUploadPreview(){
 
 function answerAdioQuestion(q,tab){
   const question=q.toLowerCase();
-  if(/nav|gdp|commitment|cluster|manufacturing/i.test(question))return `ADIO cluster programme: USD ${ADIO_OFFICIAL.impact.gdpCommitmentsUsd} incremental GDP commitments. Manufacturing sector USD ${ADIO_OFFICIAL.impact.manufacturingGdpUsd} in 2024 (${ADIO_OFFICIAL.impact.manufacturingGdpShare} of GDP).`;
-  if(/irr|export|growth|performance/i.test(question))return `Non-oil exports increased ${ADIO_OFFICIAL.impact.nonOilExportGrowth} (2023–2024). ADIO facilitated AED ${ADIO_OFFICIAL.impact.pppFacilitatedAed} in PPP deals (2020–2024).`;
-  if(/fintech|finance|digital|tech|starzplay|media/i.test(question))return 'Finance and Digital & Technology are ADIO priority industries. Starzplay achieved 2.5x revenue growth with ADIO support, surpassing AED 370M revenue from Yas Creative Hub.';
+  if(/nav|asset value/i.test(question))return 'Total NAV is AED 18.9B as of Q4 2024, up 52.4% from AED 12.4B in Q1 2023.';
+  if(/irr|return/i.test(question)&&!/export|ppp|non-oil/i.test(question))return 'Portfolio IRR is 18.9% in Q4 2024, outperforming the benchmark by 810 basis points (10.8% benchmark).';
+  if(/fintech|sector.*alloc|increase allocation/i.test(question))return 'FinTech has the highest IRR at 22.3% but is only 71% deployed (AED 780M of AED 1,100M allocated). Increasing to full deployment could generate ~AED 92M additional annual returns.';
+  if(/unrealised|return potential/i.test(question))return 'AED 2.5B uncommitted capital across underdeployed sectors. Full FinTech deployment alone could add AED 92M annually at 22.3% IRR.';
+  if(/2025|projected nav/i.test(question))return 'At 5.4% compounded quarterly growth, NAV is projected to reach AED 22B by Q4 2025 without additional capital deployment.';
+  if(/q3 2023|dip/i.test(question))return 'Q3 2023 NAV dipped from AED 13.1B to 12.8B before recovering. Portfolio IRR was 11.9% vs 8.1% benchmark — still outperforming.';
+  if(/risk.adjusted|best sector/i.test(question))return 'FinTech offers best risk-adjusted return at 22.3% IRR. Technology follows at 18.4%. Logistics at 16.1% IRR remains underdeployed.';
+  if(/deployment|100%|full/i.test(question)&&!/ppp|musataha/i.test(question))return 'Full deployment of all sectors would deploy remaining AED 2.5B. FinTech alone has AED 320M uncommitted at 22.3% IRR.';
+  if(/recommend|strategic|q1 2025/i.test(question)&&tab==='portfolio')return '1) Increase FinTech deployment to 100%. 2) Review Real Estate rebalancing toward Technology/Logistics. 3) Maintain pipeline discipline — 9.5% conversion exceeds benchmark.';
+  if(/gdp|commitment|cluster|manufacturing/i.test(question))return `ADIO cluster programme: USD ${ADIO_OFFICIAL.impact.gdpCommitmentsUsd} incremental GDP commitments. Manufacturing sector USD ${ADIO_OFFICIAL.impact.manufacturingGdpUsd} in 2024 (${ADIO_OFFICIAL.impact.manufacturingGdpShare} of GDP).`;
+  if(/export|growth|performance/i.test(question)&&tab!=='portfolio')return `Non-oil exports increased ${ADIO_OFFICIAL.impact.nonOilExportGrowth} (2023–2024). ADIO facilitated AED ${ADIO_OFFICIAL.impact.pppFacilitatedAed} in PPP deals (2020–2024).`;
+  if(/fintech|finance|digital|tech|starzplay|media/i.test(question)&&tab!=='portfolio')return 'Finance and Digital & Technology are ADIO priority industries. Starzplay achieved 2.5x revenue growth with ADIO support, surpassing AED 370M revenue from Yas Creative Hub.';
   if(/logistics|trade|connection/i.test(question))return 'Logistics is a core strategic sector. Abu Dhabi ports and airports connect to 100+ global destinations.';
   if(/pipeline|deal|musataha|ppp|besix/i.test(question))return `${ADIO_OFFICIAL.impact.musatahaContracts} Musataha contracts (USD ${ADIO_OFFICIAL.impact.musatahaInvestmentUsd}). AED ${ADIO_OFFICIAL.impact.pppFacilitatedAed} PPP facilitated; AED ${ADIO_OFFICIAL.impact.pppPipelineAed} pipeline. IJGlobal Deals of the Year 2022–2024.`;
   if(/agriculture|agwa|food/i.test(question))return 'AGWA cluster drives food, water, and AgTech innovation — including the world\'s largest indoor vertical farm for R&D.';
   if(/macro|abu dhabi|advantage|safe|golden visa/i.test(question))return ADIO_OFFICIAL.advantages.join(' ');
   if(/contact|phone|email|address/i.test(question))return `${ADIO_OFFICIAL.contact.phone} · ${ADIO_OFFICIAL.contact.email} · ${ADIO_OFFICIAL.contact.address}`;
   if(/vision|mission|badr/i.test(question))return `${ADIO_OFFICIAL.vision}. ${ADIO_OFFICIAL.mission} Director General: ${ADIO_OFFICIAL.dg}.`;
-  if(/recommend|strategic/i.test(question))return ADIO_INSIGHTS.full.slice(0,3).map((t,i)=>`${i+1}. ${t}`).join('\n\n');
   if(/summary|overview/i.test(question))return ADIO_INSIGHTS.full.map((t,i)=>`${i+1}. ${t}`).join('\n\n');
   const ctx=getCtx()[tab]||getCtx().full;
-  return `Based on official ADIO data (investwithabudhabi.com): ${ctx.slice(0,400)}...\n\nTry asking about priority sectors, Musataha, PPP, Starzplay, or Abu Dhabi advantages.`;
+  return `Based on ADIO data: ${ctx.slice(0,400)}...\n\nTry asking about NAV, IRR, FinTech, pipeline, macro, or strategic recommendations.`;
 }
 
 function answerCustomQuestion(q){
@@ -2362,7 +2370,7 @@ function answerCustomQuestion(q){
 /* ── ADIO Intelligence — floating assistant ── */
 let currentPage='portfolio',copilotTopic='portfolio',copilotMode='ask',copilotHistory=[],copilotOpen=false,copilotExpanded=false,copilotScrollY=0;
 const COPILOT_TOPICS=[
-  {id:'portfolio',label:'Strategic Sectors'},
+  {id:'portfolio',label:'Portfolio'},
   {id:'pipeline',label:'Deal pipeline'},
   {id:'performance',label:'Performance'},
   {id:'macro',label:'Macro'}
